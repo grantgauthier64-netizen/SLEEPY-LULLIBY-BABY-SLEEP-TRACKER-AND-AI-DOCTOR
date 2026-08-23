@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sleepy Lullaby Dreams — Baby Sleep Tracker & Patterns</title>
+    <meta name="description" content="A warm, modern baby sleep app helping parents understand sleep patterns, track nightly rest, optimize wake windows, and coordinate care." />
+    
+    <!-- Inline error handler to prevent benign Vite websocket / HMR unhandled rejection notices -->
+    <script>
+      (function() {
+        function isViteWsError(err) {
+          if (!err) return false;
+          var str = '';
+          try {
+            str = (err.message || err.stack || err.reason || String(err)).toLowerCase();
+          } catch(e) {}
+          return (
+            str.indexOf('websocket') !== -1 ||
+            str.indexOf('closed without opened') !== -1 ||
+            str.indexOf('failed to connect to websocket') !== -1 ||
+            str.indexOf('failed to fetch dynamically imported module') !== -1
+          );
+        }
+
+        window.addEventListener('unhandledrejection', function(event) {
+          if (isViteWsError(event.reason) || isViteWsError(event)) {
+            event.preventDefault();
+            if (typeof event.stopImmediatePropagation === 'function') {
+              event.stopImmediatePropagation();
+            }
+            return false;
+          }
+        }, true);
+
+        window.addEventListener('error', function(event) {
+          if (isViteWsError(event.error) || isViteWsError(event.message) || isViteWsError(event)) {
+            event.preventDefault();
+            if (typeof event.stopImmediatePropagation === 'function') {
+              event.stopImmediatePropagation();
+            }
+            return false;
+          }
+        }, true);
+      })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..800&family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-[#FFFBF7] text-[#4A3F35] font-sans antialiased selection:bg-[#FFB7B2]/30 selection:text-[#4A3F35]">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
