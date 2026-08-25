@@ -12,6 +12,7 @@ import { SleepScheduleSection } from './components/SleepScheduleSection';
 import { SoundsAndGuidesSection } from './components/SoundsAndGuidesSection';
 import { MultiCaregiverSection } from './components/MultiCaregiverSection';
 import { ParentTestimonials } from './components/ParentTestimonials';
+import { SEOPediatricKnowledgeHub } from './components/SEOPediatricKnowledgeHub';
 import { Footer } from './components/Footer';
 import { LullabyAIDashboardSection } from './components/LullabyAIDashboardSection';
 import { SleepPatternsVisualizerSection } from './components/SleepPatternsVisualizerSection';
@@ -253,6 +254,12 @@ export default function App() {
 
         {/* 7. Parent Testimonials & AAP Compliance */}
         <ParentTestimonials />
+
+        {/* 8. Comprehensive SEO Knowledge Hub & Pediatric FAQ */}
+        <SEOPediatricKnowledgeHub
+          onOpenLiveTracker={() => handleOpenActivityLogger('sleep')}
+          onOpenAIAgent={() => setIsAIAgentOpen(true)}
+        />
       </main>
 
       {/* Footer */}

@@ -25,13 +25,14 @@ export interface FeedLog {
   time: string; // e.g. "14:30"
   durationMinutes?: number; // for nursing
   breastSide?: BreastSide;
+  nursingSide?: BreastSide;
   amountMl?: number; // for formula or bottle
   amountOz?: number;
   foodDescription?: string; // for solids
   notes: string;
   loggedBy: string;
   caregiverAvatar: string;
-  date: string;
+  date?: string;
 }
 
 export interface DiaperLog {
@@ -39,10 +40,13 @@ export interface DiaperLog {
   diaperType: DiaperType;
   time: string; // e.g. "15:15"
   hasRashCream?: boolean;
+  stoolColor?: string;
+  stoolConsistency?: string;
+  leakage?: boolean;
   notes: string;
   loggedBy: string;
   caregiverAvatar: string;
-  date: string;
+  date?: string;
 }
 
 export interface CustomActivityLog {

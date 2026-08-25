@@ -112,72 +112,68 @@ export const Footer: React.FC<FooterProps> = ({ onOpenStartTracking }) => {
           })}
         </div>
 
-        {/* Footer Navigation Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-white/10">
+        {/* Footer Navigation Columns with Rich Target Keywords */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 pb-12 border-b border-white/10">
           
           {/* Brand Col */}
-          <div className="md:col-span-2 space-y-4">
+          <div className="sm:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-[#FF5A5F] flex items-center justify-center shadow-md shadow-[#FF5A5F]/30">
                 <Moon className="w-5 h-5 text-white fill-white" />
               </div>
               <span className="font-serif text-2xl font-bold text-white">
-                Sleepy Lullaby Dreams
+                Sleepy Lullaby AI
               </span>
             </div>
             <p className="text-xs text-[#A8A29E] leading-relaxed max-w-sm">
-              Dedicated to bringing calm, evidence-based sleep support to new parents worldwide. Built with love, science, and deep compassion for tired families.
+              The premier <strong>AI Baby Sleep Tracker</strong>, <strong>AI Sleep Coach</strong>, and <strong>Newborn Baby Sleep and Feeding Tracker with AI</strong>. Evidence-based pediatric support for well-rested families.
             </p>
             <div className="flex items-center gap-2 text-xs text-[#4ADE80] font-semibold">
               <ShieldCheck className="w-4 h-4 text-[#4ADE80]" />
-              <span>AAP Safe Sleep Guidelines Compliant</span>
+              <span>AAP Safe Sleep & Pediatric Guidelines Compliant</span>
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* AI Sleep Tracker & Schedules */}
           <div className="space-y-3">
             <h5 className="text-xs font-bold uppercase tracking-wider text-white">
-              Features & Tools
+              AI Sleep Coach
             </h5>
             <ul className="space-y-2 text-xs text-[#A8A29E]">
-              <li><a href="#track-everything" className="hover:text-white transition-colors">Sleep & Nap Tracker</a></li>
+              <li><a href="#ai-baby-seo-knowledge-hub" className="hover:text-white transition-colors">AI Baby Sleep Tracker</a></li>
+              <li><a href="#personalized-schedules" className="hover:text-white transition-colors">Baby Sleep Schedule App</a></li>
+              <li><a href="#sleep-patterns" className="hover:text-white transition-colors">Newborn Sleep Tracker</a></li>
               <li><a href="#personalized-schedules" className="hover:text-white transition-colors">Wake Window Calculator</a></li>
-              <li><a href="#sounds-guides" className="hover:text-white transition-colors">Pink & White Noise Machine</a></li>
-              <li><a href="#sounds-guides" className="hover:text-white transition-colors">5S Soothing Technique Guide</a></li>
-              <li><a href="#multi-caregiver" className="hover:text-white transition-colors">Caregiver Shift Handover</a></li>
+              <li><a href="#sounds-guides" className="hover:text-white transition-colors">Pink & Brown Noise Machine</a></li>
             </ul>
           </div>
 
-          {/* Newsletter */}
+          {/* AI Pediatrician & Symptoms */}
           <div className="space-y-3">
             <h5 className="text-xs font-bold uppercase tracking-wider text-white">
-              Weekly Sleep Tips
+              AI Doctor & Health
             </h5>
-            <p className="text-xs text-[#A8A29E]">
-              Gentle weekly developmental milestones and pediatrician advice.
-            </p>
-            {!subscribed ? (
-              <form onSubmit={handleNewsletterSubmit} className="space-y-2">
-                <input
-                  type="email"
-                  placeholder="parent@example.com"
-                  value={newsletterEmail}
-                  onChange={(e) => setNewsletterEmail(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-white/10 rounded-full border border-white/20 text-xs text-white placeholder:text-[#78716C] focus:outline-none focus:ring-2 focus:ring-[#FF5A5F]"
-                  required
-                />
-                <button
-                  type="submit"
-                  className="w-full py-2.5 rounded-full text-xs font-extrabold bg-[#FF5A5F] hover:bg-[#FF4147] text-white transition-colors cursor-pointer shadow-md shadow-[#FF5A5F]/35"
-                >
-                  Get Free Sleep Tips
-                </button>
-              </form>
-            ) : (
-              <div className="p-3 rounded-2xl bg-white/10 text-xs text-[#4ADE80] font-semibold flex items-center gap-1.5">
-                <span>✓ You are subscribed for gentle tips!</span>
-              </div>
-            )}
+            <ul className="space-y-2 text-xs text-[#A8A29E]">
+              <li><a href="#on-site-ai-doctor" className="hover:text-white transition-colors">AI Pediatrician for Parents</a></li>
+              <li><a href="#on-site-ai-doctor" className="hover:text-white transition-colors">AI Baby Health Assistant</a></li>
+              <li><a href="#track-everything" className="hover:text-white transition-colors">Baby Symptoms Tracker App</a></li>
+              <li><a href="#on-site-ai-doctor" className="hover:text-white transition-colors">Baby Tracker with AI Doctor</a></li>
+              <li><a href="#on-site-ai-doctor" className="hover:text-white transition-colors">Infant Fever Calculator</a></li>
+            </ul>
+          </div>
+
+          {/* Newborn Feeding & Care */}
+          <div className="space-y-3">
+            <h5 className="text-xs font-bold uppercase tracking-wider text-white">
+              Feeding & Sync
+            </h5>
+            <ul className="space-y-2 text-xs text-[#A8A29E]">
+              <li><a href="#track-everything" className="hover:text-white transition-colors">Baby Feeding & Sleep Tracker</a></li>
+              <li><a href="#track-everything" className="hover:text-white transition-colors">Newborn Feeding Log</a></li>
+              <li><a href="#track-everything" className="hover:text-white transition-colors">Diaper Photo Stool Triage</a></li>
+              <li><a href="#multi-caregiver" className="hover:text-white transition-colors">Caregiver Shift Sync</a></li>
+              <li><a href="#ai-baby-seo-knowledge-hub" className="hover:text-white transition-colors">Top 9 Allergen Ladder</a></li>
+            </ul>
           </div>
 
         </div>

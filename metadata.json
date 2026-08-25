@@ -1,6 +1,6 @@
 {
   "name": "Sleepy Lullaby Dreams",
-  "description": "Comprehensive baby sleep tracker and 7-day circadian patterns visualizer with an On-Site AI Baby Doctor, personalized sleep science schedules, soothing audio synthesizer, and multi-caregiver coordination.",
+  "description": "AI Baby Sleep Tracker, AI Sleep Coach & Newborn Feeding and Symptoms Tracker App with 24/7 AI Pediatrician Doctor, wake window calculations, and circadian sleep schedules.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

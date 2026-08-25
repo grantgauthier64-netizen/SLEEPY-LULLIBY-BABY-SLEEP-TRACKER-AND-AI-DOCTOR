@@ -21,7 +21,11 @@ import {
   ChevronUp,
   Activity,
   Smile,
-  MilkOff
+  MilkOff,
+  Apple,
+  TrendingUp,
+  Moon,
+  AlertCircle
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { BabyProfile } from '../types';
@@ -54,9 +58,10 @@ I'm **Dr. Lullaby & Nurse Daisy**, your 24/7 AI Pediatric Consultant for ${babyP
 
 **Ask me anything regarding:**
 - **Fever & Illness**: Safe temperature thresholds, when to call the pediatrician, cold/cough comfort.
-- **Sleep & Wake Windows**: Overtiredness vs undertiredness, nap transitions, regression relief.
-- **Teething & Fussiness**: Safe gum soothing, swollen gums, drooling rash remedies.
-- **Feeding & Nutrition**: Starting solids / BLW, nursing schedules, formula amounts, gas/reflux relief.
+- **Sleep Regressions**: 4-month maturation, 8-month separation anxiety, nap transitions.
+- **Starting Solids & Allergens**: Baby-Led Weaning, Top 9 allergen introduction ladder, reaction signs.
+- **Developmental Milestones**: Motor skills, speech, and AAP clinical red flags.
+- **Feeding & Digestion**: Reflux, curdled spit-up, cow's milk sensitivity, and colic soothing.
 
 *Type any question below or click any of the interactive diagnostic tools on the left!*`,
       timestamp: 'Online Now'
@@ -68,7 +73,9 @@ I'm **Dr. Lullaby & Nurse Daisy**, your 24/7 AI Pediatric Consultant for ${babyP
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Interactive Diagnostic Tool Tab
-  const [activeTool, setActiveTool] = useState<'lactose' | 'spit_up' | 'poop_colors' | 'fever' | 'feeding' | 'teething' | 'colic' | 'safe_sleep'>('lactose');
+  const [activeTool, setActiveTool] = useState<
+    'lactose' | 'spit_up' | 'poop_colors' | 'fever' | 'feeding' | 'allergens' | 'milestones' | 'regressions' | 'teething' | 'colic' | 'safe_sleep'
+  >('lactose');
 
   // Poop Color Decoder State
   const [selectedPoopColor, setSelectedPoopColor] = useState<string>('curd_yellow');
@@ -81,11 +88,17 @@ I'm **Dr. Lullaby & Nurse Daisy**, your 24/7 AI Pediatric Consultant for ${babyP
   const [feverAgeMonths, setFeverAgeMonths] = useState<number>(babyProfile.ageMonths || 5);
   const [tempMethod, setTempMethod] = useState<'rectal' | 'axillary' | 'forehead'>('rectal');
 
-  // Feeding & Nutrition State
-  const [feedingStage, setFeedingStage] = useState<'nursing' | 'formula' | 'starting_solids' | 'finger_foods'>('starting_solids');
+  // Solid Foods & Allergens State
+  const [selectedAllergen, setSelectedAllergen] = useState<string>('peanut');
   const [solidsChecked, setSolidsChecked] = useState<string[]>([
     'sitting_up', 'tongue_thrust', 'grasping'
   ]);
+
+  // Developmental Milestone State
+  const [milestoneAgeBracket, setMilestoneAgeBracket] = useState<'0_3' | '4_6' | '7_9' | '10_12' | '12_18'>('4_6');
+
+  // Sleep Regression State
+  const [regressionAge, setRegressionAge] = useState<'4m' | '8m' | '12m' | '18m'>('4m');
 
   // Teething checklist state
   const [checkedSymptoms, setCheckedSymptoms] = useState<string[]>(['drooling', 'gnawing']);
@@ -131,7 +144,6 @@ I'm **Dr. Lullaby & Nurse Daisy**, your 24/7 AI Pediatric Consultant for ${babyP
     setInputQuery('');
     setIsLoading(true);
 
-    // Scroll chat into view
     setTimeout(() => {
       chatContainerRef.current?.scrollTo({
         top: chatContainerRef.current.scrollHeight,
@@ -258,7 +270,6 @@ Please feel free to re-submit your message in a moment!`,
       };
     }
 
-    // 6+ months
     if (tempF >= 102.0) {
       return {
         level: 'warning',
@@ -300,7 +311,7 @@ Please feel free to re-submit your message in a moment!`,
             Instant Pediatric & Health Answers, <span className="text-[#FF5A5F] italic">Right on Site</span>
           </h2>
           <p className="text-base sm:text-lg text-[#292524] font-normal leading-relaxed">
-            Clinical guidance at your fingertips 24/7. Ask questions, check fever safety thresholds, diagnose sleep regressions, and verify AAP safe sleep standards.
+            Clinical guidance at your fingertips 24/7. Check fever thresholds, diagnose sleep regressions, assess solids & allergy readiness, and track developmental milestones.
           </p>
         </div>
 
@@ -322,7 +333,46 @@ Please feel free to re-submit your message in a moment!`,
                 }`}
               >
                 <MilkOff className="w-3.5 h-3.5" />
-                <span>🥛 Lactose & CMPA Guide</span>
+                <span>🥛 Lactose & CMPA</span>
+              </button>
+
+              <button
+                id="btn-tool-allergens"
+                onClick={() => setActiveTool('allergens')}
+                className={`px-3.5 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer ${
+                  activeTool === 'allergens'
+                    ? 'bg-[#15803D] text-white shadow-md shadow-[#15803D]/30 scale-102 ring-2 ring-[#15803D]/20'
+                    : 'bg-[#FFFBF7] text-[#57534E] hover:text-[#1C1917] hover:bg-[#F5EFEB]'
+                }`}
+              >
+                <Apple className="w-3.5 h-3.5" />
+                <span>🥑 Solids & Allergens</span>
+              </button>
+
+              <button
+                id="btn-tool-milestones"
+                onClick={() => setActiveTool('milestones')}
+                className={`px-3.5 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer ${
+                  activeTool === 'milestones'
+                    ? 'bg-[#0284C7] text-white shadow-md shadow-[#0284C7]/30 scale-102 ring-2 ring-[#0284C7]/20'
+                    : 'bg-[#FFFBF7] text-[#57534E] hover:text-[#1C1917] hover:bg-[#F5EFEB]'
+                }`}
+              >
+                <TrendingUp className="w-3.5 h-3.5" />
+                <span>👶 Milestones & Red Flags</span>
+              </button>
+
+              <button
+                id="btn-tool-regressions"
+                onClick={() => setActiveTool('regressions')}
+                className={`px-3.5 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer ${
+                  activeTool === 'regressions'
+                    ? 'bg-[#7C3AED] text-white shadow-md shadow-[#7C3AED]/30 scale-102 ring-2 ring-[#7C3AED]/20'
+                    : 'bg-[#FFFBF7] text-[#57534E] hover:text-[#1C1917] hover:bg-[#F5EFEB]'
+                }`}
+              >
+                <Moon className="w-3.5 h-3.5" />
+                <span>🌙 Sleep Regressions</span>
               </button>
 
               <button
@@ -335,7 +385,7 @@ Please feel free to re-submit your message in a moment!`,
                 }`}
               >
                 <Milk className="w-3.5 h-3.5" />
-                <span>🍼 Curdled Spit-Up Guide</span>
+                <span>🍼 Spit-Up Guide</span>
               </button>
 
               <button
@@ -348,7 +398,7 @@ Please feel free to re-submit your message in a moment!`,
                 }`}
               >
                 <Activity className="w-3.5 h-3.5" />
-                <span>🎨 Poop Color Decoder</span>
+                <span>🎨 Poop Colors</span>
               </button>
 
               <button
@@ -361,50 +411,11 @@ Please feel free to re-submit your message in a moment!`,
                 }`}
               >
                 <Thermometer className="w-3.5 h-3.5" />
-                <span>Infant Health & Fever</span>
-              </button>
-
-              <button
-                id="btn-tool-feeding"
-                onClick={() => setActiveTool('feeding')}
-                className={`px-3.5 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer ${
-                  activeTool === 'feeding'
-                    ? 'bg-[#D97706] text-white shadow-md shadow-[#D97706]/30 scale-102'
-                    : 'bg-[#FFFBF7] text-[#57534E] hover:text-[#1C1917] hover:bg-[#F5EFEB]'
-                }`}
-              >
-                <Milk className="w-3.5 h-3.5" />
-                <span>Feeding & Nutrition</span>
-              </button>
-
-              <button
-                id="btn-tool-teething"
-                onClick={() => setActiveTool('teething')}
-                className={`px-3.5 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer ${
-                  activeTool === 'teething'
-                    ? 'bg-[#7C3AED] text-white shadow-md shadow-[#7C3AED]/30 scale-102'
-                    : 'bg-[#FFFBF7] text-[#57534E] hover:text-[#1C1917] hover:bg-[#F5EFEB]'
-                }`}
-              >
-                <Baby className="w-3.5 h-3.5" />
-                <span>Teething Check</span>
-              </button>
-
-              <button
-                id="btn-tool-safe-sleep"
-                onClick={() => setActiveTool('safe_sleep')}
-                className={`px-3.5 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer ${
-                  activeTool === 'safe_sleep'
-                    ? 'bg-[#0284C7] text-white shadow-md shadow-[#0284C7]/30 scale-102'
-                    : 'bg-[#FFFBF7] text-[#57534E] hover:text-[#1C1917] hover:bg-[#F5EFEB]'
-                }`}
-              >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>AAP Safe Sleep</span>
+                <span>Fever Triage</span>
               </button>
             </div>
 
-            {/* Active Tool Card: Lactose Intolerance & Dairy Sensitivity Card */}
+            {/* TOOL 1: Lactose & CMPA Card */}
             {activeTool === 'lactose' && (
               <LactoseIntoleranceCard
                 babyName={babyProfile.name || 'your baby'}
@@ -413,7 +424,295 @@ Please feel free to re-submit your message in a moment!`,
               />
             )}
 
-            {/* Active Tool Card: Curdled Spit-Up & Reflux Guide */}
+            {/* TOOL 2: Solid Foods & Top 9 Allergen Ladder */}
+            {activeTool === 'allergens' && (
+              <div className="bg-white rounded-[32px] border-2 border-[#E7DDD5] p-6 sm:p-7 shadow-sm space-y-6 animate-fadeIn">
+                <div className="flex items-center justify-between pb-3 border-b border-[#F0E6DD]">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-xl bg-[#DCFCE7] border border-[#BBF7D0] flex items-center justify-center text-[#15803D]">
+                      <Apple className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-serif text-lg font-bold text-[#1C1917]">
+                        Solids & Top 9 Allergen Ladder
+                      </h3>
+                      <p className="text-xs text-[#57534E]">AAP Early Allergen Introduction Protocol</p>
+                    </div>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-[#DCFCE7] text-[#15803D] border border-[#BBF7D0]">
+                    4–6+ Months
+                  </span>
+                </div>
+
+                {/* Readiness Assessment */}
+                <div className="p-4 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-2">
+                  <span className="text-xs font-extrabold uppercase text-[#15803D] block">
+                    ✓ Developmental Solids Readiness Checklist:
+                  </span>
+                  <div className="space-y-1.5 text-xs text-[#292524]">
+                    {[
+                      { id: 'sitting_up', label: 'Holds head steady & sits upright with minimal support' },
+                      { id: 'tongue_thrust', label: 'Loss of tongue-thrust reflex (does not automatically push food out)' },
+                      { id: 'grasping', label: 'Reaches out for food and brings hands/objects to mouth' },
+                    ].map((item) => (
+                      <label
+                        key={item.id}
+                        onClick={() => toggleSolidsCheck(item.id)}
+                        className="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-[#E7DDD5] cursor-pointer hover:bg-[#F0FDF4]"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={solidsChecked.includes(item.id)}
+                          onChange={() => {}}
+                          className="w-4 h-4 accent-[#15803D]"
+                        />
+                        <span className="font-medium text-xs text-[#1C1917]">{item.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Top 9 Allergen Timeline Selector */}
+                <div className="space-y-2">
+                  <span className="text-xs font-extrabold uppercase text-[#1C1917] block">
+                    Select Allergen for Safe Pediatric Introduction:
+                  </span>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    {[
+                      { id: 'peanut', label: '🥜 Peanut', risk: 'High' },
+                      { id: 'egg', label: '🥚 Egg', risk: 'Medium' },
+                      { id: 'dairy', label: '🥛 Dairy', risk: 'Medium' },
+                      { id: 'tree_nut', label: '🌰 Tree Nuts', risk: 'High' },
+                      { id: 'soy', label: '🌱 Soy', risk: 'Low' },
+                      { id: 'wheat', label: '🌾 Wheat', risk: 'Low' },
+                      { id: 'fish', label: '🐟 Fish', risk: 'Medium' },
+                      { id: 'shellfish', label: '🦐 Shellfish', risk: 'Medium' },
+                      { id: 'sesame', label: '🥯 Sesame', risk: 'Medium' }
+                    ].map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => setSelectedAllergen(item.id)}
+                        className={`p-2.5 rounded-xl border-2 font-bold text-center transition-all cursor-pointer ${
+                          selectedAllergen === item.id
+                            ? 'bg-[#15803D] text-white border-[#15803D] shadow-xs'
+                            : 'bg-white text-[#1C1917] border-[#E7DDD5] hover:bg-[#F0FDF4]'
+                        }`}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Selected Allergen Clinical Procedure */}
+                <div className="p-4 rounded-2xl bg-[#F0FDF4] border-2 border-[#BBF7D0] space-y-2 text-xs">
+                  <strong className="block text-sm font-bold text-[#14532D]">
+                    💡 Pediatric Protocol for {selectedAllergen.toUpperCase()}:
+                  </strong>
+                  <ul className="space-y-1.5 text-[#166534]">
+                    <li>• <strong>Preparation:</strong> Thin smooth paste/puree (e.g. 1/4 tsp peanut powder mixed with breastmilk/formula). Never whole nuts.</li>
+                    <li>• <strong>Timing:</strong> Introduce in the morning when baby is healthy, so you can observe over the next 2–3 hours.</li>
+                    <li>• <strong>Frequency:</strong> Once introduced with no reaction, offer 1–2 times weekly to maintain tolerance.</li>
+                  </ul>
+                </div>
+
+                {/* Reaction vs Emergency Signs */}
+                <div className="p-4 rounded-2xl bg-[#FEF2F2] border-2 border-[#FECDD3] space-y-2">
+                  <span className="text-xs font-bold text-[#991B1B] flex items-center gap-1.5">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>When to Seek Immediate Medical Help (Anaphylaxis):</span>
+                  </span>
+                  <p className="text-xs text-[#7F1D1D] leading-relaxed">
+                    Hives spreading rapidly, facial/lip swelling, vomiting within 30 mins, wheezing, coughing, or sudden lethargy. Call 911 / emergency services immediately.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => handleSendMessage(`What is the recommended step-by-step introduction plan for ${selectedAllergen} for my ${babyProfile.ageMonths}-month-old baby?`)}
+                  className="w-full py-3 rounded-2xl bg-[#15803D] hover:bg-[#166534] text-white font-bold text-xs shadow-md shadow-[#15803D]/30 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4 text-emerald-200" />
+                  <span>Ask AI Doctor About Starting Solids</span>
+                </button>
+              </div>
+            )}
+
+            {/* TOOL 3: Developmental Milestones & Red Flags Tracker */}
+            {activeTool === 'milestones' && (
+              <div className="bg-white rounded-[32px] border-2 border-[#E7DDD5] p-6 sm:p-7 shadow-sm space-y-6 animate-fadeIn">
+                <div className="flex items-center justify-between pb-3 border-b border-[#F0E6DD]">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-xl bg-[#E0F2FE] border border-[#BAE6FD] flex items-center justify-center text-[#0284C7]">
+                      <TrendingUp className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-serif text-lg font-bold text-[#1C1917]">
+                        Developmental Milestones
+                      </h3>
+                      <p className="text-xs text-[#57534E]">AAP & CDC Age-Based Developmental Tracker</p>
+                    </div>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-[#E0F2FE] text-[#0284C7] border border-[#BAE6FD]">
+                    CDC Guidelines
+                  </span>
+                </div>
+
+                {/* Age Bracket Pills */}
+                <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1">
+                  {[
+                    { id: '0_3', label: '0–3 Months' },
+                    { id: '4_6', label: '4–6 Months' },
+                    { id: '7_9', label: '7–9 Months' },
+                    { id: '10_12', label: '10–12 Months' },
+                    { id: '12_18', label: '12–18 Months' }
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setMilestoneAgeBracket(tab.id as any)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                        milestoneAgeBracket === tab.id
+                          ? 'bg-[#0284C7] text-white shadow-xs'
+                          : 'bg-[#FFFBF7] text-[#57534E] border border-[#D6C7BC] hover:bg-[#E0F2FE]'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* 4 Developmental Domains */}
+                <div className="space-y-3">
+                  <div className="p-3.5 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-1">
+                    <span className="text-xs font-extrabold uppercase text-[#0369A1] block">
+                      🏃 Gross Motor Skills:
+                    </span>
+                    <p className="text-xs text-[#292524]">
+                      {milestoneAgeBracket === '0_3' && 'Lifts head during tummy time, turns head side to side, smooth arm movements.'}
+                      {milestoneAgeBracket === '4_6' && 'Rolls tummy to back and back to tummy, pushes up on straight arms, sits with support.'}
+                      {milestoneAgeBracket === '7_9' && 'Sits without support, crawls or scoots, bears weight on legs when supported.'}
+                      {milestoneAgeBracket === '10_12' && 'Pulls up to stand, cruises along furniture, may take first independent steps.'}
+                      {milestoneAgeBracket === '12_18' && 'Walks independently, squats to pick up toys, climbs onto low surfaces.'}
+                    </p>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-1">
+                    <span className="text-xs font-extrabold uppercase text-[#7C3AED] block">
+                      🗣️ Social & Communication:
+                    </span>
+                    <p className="text-xs text-[#292524]">
+                      {milestoneAgeBracket === '0_3' && 'Smiles responsively at faces, makes cooing sounds ("ooh", "aah"), turns to familiar voices.'}
+                      {milestoneAgeBracket === '4_6' && 'Laughs out loud, babbles consonant strings ("ba-ba", "da-da"), looks when name is called.'}
+                      {milestoneAgeBracket === '7_9' && 'Understands "no", responds to own name consistently, shows stranger anxiety.'}
+                      {milestoneAgeBracket === '10_12' && 'Waves "bye-bye", says "mama" or "dada" with specific meaning, plays peek-a-boo.'}
+                      {milestoneAgeBracket === '12_18' && 'Uses 5–10 words, points to show interest, follows simple 1-step directions.'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* AAP Red Flags Callout */}
+                <div className="p-4 rounded-2xl bg-[#FEF3C7] border-2 border-[#FDE68A] space-y-1.5">
+                  <span className="text-xs font-extrabold text-[#92400E] flex items-center gap-1.5">
+                    <AlertCircle className="w-4 h-4 text-[#B45309]" />
+                    <span>AAP Clinical Red Flags (Contact Pediatrician):</span>
+                  </span>
+                  <p className="text-xs text-[#78350F] leading-relaxed">
+                    {milestoneAgeBracket === '0_3' && 'Does not respond to loud sounds, does not track moving objects with eyes, stiff or excessively floppy limbs.'}
+                    {milestoneAgeBracket === '4_6' && 'Does not hold head steady, does not smile or make sounds, does not reach for toys.'}
+                    {milestoneAgeBracket === '7_9' && 'Cannot sit with help, does not bear weight on legs, does not babble or respond to name.'}
+                    {milestoneAgeBracket === '10_12' && 'Cannot stand with support, does not point or gesture, loses previously acquired skills.'}
+                    {milestoneAgeBracket === '12_18' && 'Does not walk by 18 months, speaks fewer than 6 words, avoids eye contact.'}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => handleSendMessage(`Are my baby's developmental milestones on track for ${babyProfile.ageMonths} months? What activities boost motor and speech development?`)}
+                  className="w-full py-3 rounded-2xl bg-[#0284C7] hover:bg-[#0369A1] text-white font-bold text-xs shadow-md shadow-[#0284C7]/30 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4 text-sky-200" />
+                  <span>Ask AI Doctor About Milestones</span>
+                </button>
+              </div>
+            )}
+
+            {/* TOOL 4: Sleep Regressions & Circadian Leaps */}
+            {activeTool === 'regressions' && (
+              <div className="bg-white rounded-[32px] border-2 border-[#E7DDD5] p-6 sm:p-7 shadow-sm space-y-6 animate-fadeIn">
+                <div className="flex items-center justify-between pb-3 border-b border-[#F0E6DD]">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-xl bg-[#EDE9FE] border border-[#DDD6FE] flex items-center justify-center text-[#7C3AED]">
+                      <Moon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-serif text-lg font-bold text-[#1C1917]">
+                        Sleep Regressions & Leaps
+                      </h3>
+                      <p className="text-xs text-[#57534E]">Neurological Sleep Transitions & Solutions</p>
+                    </div>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-[#EDE9FE] text-[#7C3AED] border border-[#DDD6FE]">
+                    Circadian Shift
+                  </span>
+                </div>
+
+                {/* Regression Age Selector */}
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { id: '4m', label: '4-Month', sub: 'Sleep Cycles' },
+                    { id: '8m', label: '8-10 Month', sub: 'Separation' },
+                    { id: '12m', label: '12-Month', sub: 'Nap Drop' },
+                    { id: '18m', label: '18-Month', sub: 'Independence' },
+                  ].map((r) => (
+                    <button
+                      key={r.id}
+                      onClick={() => setRegressionAge(r.id as any)}
+                      className={`p-2.5 rounded-2xl border-2 text-center transition-all cursor-pointer ${
+                        regressionAge === r.id
+                          ? 'bg-[#7C3AED] text-white border-[#7C3AED] shadow-xs'
+                          : 'bg-white text-[#1C1917] border-[#E7DDD5] hover:bg-[#F5F3FF]'
+                      }`}
+                    >
+                      <strong className="text-xs block font-bold">{r.label}</strong>
+                      <span className="text-[10px] opacity-80">{r.sub}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Regression Science & Protocols */}
+                <div className="p-4 rounded-2xl bg-[#FAF5FF] border-2 border-[#DDD6FE] space-y-3">
+                  <strong className="block text-sm font-bold text-[#5B21B6]">
+                    🧠 Biological Cause ({regressionAge.toUpperCase()} Regression):
+                  </strong>
+                  <p className="text-xs text-[#3730A3] leading-relaxed">
+                    {regressionAge === '4m' && 'Baby transitions from simple 2-stage newborn sleep to adult-like 4-stage circadian cycles (every 45–60 mins). When they cycle into light REM sleep, they wake and look for the exact environment they fell asleep in.'}
+                    {regressionAge === '8m' && 'Peak separation anxiety and intense motor leaps (crawling, pulling up in crib). Baby’s brain wants to practice standing at 2 AM!'}
+                    {regressionAge === '12m' && 'Often a false 1-nap regression. Baby resists nap 2 due to brain development, but is not biologically ready for 1 nap until 14–18 months.'}
+                    {regressionAge === '18m' && 'Language explosion, peak teething (canines/molars), and toddler testing of boundaries at bedtime.'}
+                  </p>
+                </div>
+
+                {/* Step-by-Step Survival Protocol */}
+                <div className="p-4 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-2 text-xs">
+                  <span className="text-xs font-extrabold uppercase text-[#1C1917] block">
+                    🛡️ Pediatric Survival Strategy:
+                  </span>
+                  <ul className="space-y-1.5 text-[#292524]">
+                    <li>• <strong>Drowsy But Awake:</strong> Place baby in crib calm but not fully asleep so they master linking cycles independently.</li>
+                    <li>• <strong>Protect Wake Windows:</strong> Do not let wake windows stretch past max limits ({babyProfile.ageMonths <= 5 ? '2h 15m' : '3h 30m'}).</li>
+                    <li>• <strong>Acoustic Masking:</strong> Keep continuous pink/brown noise playing at 55–60 dB to prevent startle wakeups during REM transitions.</li>
+                  </ul>
+                </div>
+
+                <button
+                  onClick={() => handleSendMessage(`How do I fix the ${regressionAge} sleep regression for my baby who is waking every hour at night?`)}
+                  className="w-full py-3 rounded-2xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold text-xs shadow-md shadow-[#7C3AED]/30 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4 text-purple-200" />
+                  <span>Ask AI Doctor for Regression Survival Plan</span>
+                </button>
+              </div>
+            )}
+
+            {/* TOOL 5: Curdled Spit-Up Guide */}
             {activeTool === 'spit_up' && (
               <div className="bg-white rounded-[32px] border-2 border-[#E7DDD5] p-6 sm:p-7 shadow-sm space-y-5 animate-fadeIn">
                 <div className="flex items-center justify-between pb-3 border-b border-[#F0E6DD]">
@@ -433,7 +732,6 @@ Please feel free to re-submit your message in a moment!`,
                   </span>
                 </div>
 
-                {/* The Science Breakdown */}
                 <div className="p-4 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-2">
                   <span className="text-xs font-extrabold uppercase text-[#EA580C] block">
                     🔬 Why It Looks Like Curdled Cottage Cheese:
@@ -443,67 +741,42 @@ Please feel free to re-submit your message in a moment!`,
                   </p>
                 </div>
 
-                {/* Interactive Time Since Feed Slider */}
                 <div className="p-4 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-[#1C1917]">Time Elapsed Since Bottle:</span>
                     <span className="font-serif text-sm font-bold text-[#EA580C] px-2 py-0.5 rounded-lg bg-orange-100 border border-orange-200">
-                      {spitUpMinutes} Minutes After Feed
+                      {spitUpMinutes} Minutes
                     </span>
                   </div>
                   <input
                     type="range"
-                    min="1"
-                    max="60"
-                    step="1"
+                    min="5"
+                    max="120"
+                    step="5"
                     value={spitUpMinutes}
-                    onChange={(e) => setSpitUpMinutes(parseInt(e.target.value))}
-                    className="w-full h-2 bg-[#D6C7BC] rounded-lg appearance-none cursor-pointer accent-[#EA580C]"
+                    onChange={(e) => setSpitUpMinutes(parseInt(e.target.value, 10))}
+                    className="w-full accent-[#EA580C] cursor-pointer"
                   />
-                  <div className="p-3 rounded-xl bg-white border border-[#E7DDD5] text-xs">
-                    {spitUpMinutes <= 10 ? (
-                      <p className="text-[#57534E]">
-                        🍼 <strong>Fresh Spit-Up (0–10 mins):</strong> Milk has not spent much time in stomach acid yet; looks like smooth liquid formula.
-                      </p>
-                    ) : spitUpMinutes <= 45 ? (
-                      <p className="text-[#9A3412] font-medium">
-                        🧀 <strong>Active Curdled Digestion ({spitUpMinutes} mins):</strong> Milk has reacted with stomach acid, forming white cottage-cheese lumps & clear digestive fluid. <em>Completely normal!</em>
-                      </p>
-                    ) : (
-                      <p className="text-[#57534E]">
-                        💧 <strong>Late Reflux (45+ mins):</strong> Mostly clear gastric fluid with tiny protein flecks as stomach finishes emptying.
-                      </p>
-                    )}
-                  </div>
+                  <p className="text-xs text-[#57534E]">
+                    {spitUpMinutes <= 20 
+                      ? "• 5-20 mins: Fresh liquid milk mixed with saliva."
+                      : spitUpMinutes <= 60
+                      ? "• 20-60 mins: Thick white curd clumps (fully acidified & digested in stomach)."
+                      : "• 60+ mins: Clear watery liquid with separated white specks (stomach acid emptying)."}
+                  </p>
                 </div>
 
-                {/* Quick Soothing Steps */}
-                <div className="space-y-1.5 text-xs text-[#44403C]">
-                  <strong className="text-xs font-bold text-[#1C1917] block">Pediatrician-Approved Spit-Up Tips:</strong>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="p-2.5 rounded-xl bg-[#FFFBF7] border border-[#E7DDD5]">
-                      <span className="font-bold text-[#EA580C] block">1. 20-Min Upright</span>
-                      Hold baby upright after feeds to let gravity keep milk down.
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-[#FFFBF7] border border-[#E7DDD5]">
-                      <span className="font-bold text-[#EA580C] block">2. Paced Feeding</span>
-                      Tilt bottle semi-flat; burp every 2–3 oz to release trapped air.
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action Trigger */}
                 <button
-                  onClick={() => handleSendMessage(`Why does my baby spit up curd-like stuff after drinking her formula? Is this normal and how can I help soothe it?`)}
+                  onClick={() => handleSendMessage('My baby is spitting up curdled formula like cottage cheese 30 minutes after feeds. Is this normal reflux or a milk allergy?')}
                   className="w-full py-3 rounded-2xl bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-xs shadow-md shadow-[#EA580C]/30 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
                 >
-                  <Sparkles className="w-4 h-4 text-amber-200" />
-                  <span>Ask AI Doctor to Analyze Curdled Spit-Up</span>
+                  <Sparkles className="w-4 h-4 text-orange-200" />
+                  <span>Ask AI Doctor About Spit-Up</span>
                 </button>
               </div>
             )}
 
-            {/* Active Tool Card: Baby Poop Color & Texture Diagnostic Card */}
+            {/* TOOL 6: Poop Color Decoder */}
             {activeTool === 'poop_colors' && (
               <PoopVisualGuideCard
                 babyName={babyProfile.name || 'your baby'}
@@ -512,9 +785,9 @@ Please feel free to re-submit your message in a moment!`,
               />
             )}
 
-            {/* Active Tool Card: Infant Health & Fever */}
+            {/* TOOL 7: Fever Triage */}
             {activeTool === 'fever' && (
-              <div className="bg-white rounded-[32px] border-2 border-[#E7DDD5] p-6 sm:p-7 shadow-sm space-y-5 animate-fadeIn">
+              <div className="bg-white rounded-[32px] border-2 border-[#E7DDD5] p-6 sm:p-7 shadow-sm space-y-6 animate-fadeIn">
                 <div className="flex items-center justify-between pb-3 border-b border-[#F0E6DD]">
                   <div className="flex items-center gap-2.5">
                     <div className="w-10 h-10 rounded-xl bg-[#FFE4E6] border border-[#FECDD3] flex items-center justify-center text-[#FF5A5F]">
@@ -522,65 +795,54 @@ Please feel free to re-submit your message in a moment!`,
                     </div>
                     <div>
                       <h3 className="font-serif text-lg font-bold text-[#1C1917]">
-                        Infant Health & Fever Calculator
+                        Infant Fever Calculator
                       </h3>
-                      <p className="text-xs text-[#57534E]">Evidence-based AAP pediatric fever & illness triage</p>
+                      <p className="text-xs text-[#57534E]">AAP Age-Specific Fever Triage</p>
                     </div>
                   </div>
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-extrabold border ${feverEval.bgColor}`}>
+                    {feverEval.badge}
+                  </span>
                 </div>
 
-                {/* Age & Temp Inputs */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[11px] font-extrabold uppercase text-[#57534E] block mb-1">
-                      Baby Age
-                    </label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[#1C1917] block">Baby's Age:</label>
                     <select
                       value={feverAgeMonths}
-                      onChange={(e) => setFeverAgeMonths(Number(e.target.value))}
-                      className="w-full bg-[#FFFBF7] border-2 border-[#D6C7BC] rounded-xl px-3 py-2 text-xs font-bold text-[#1C1917] focus:outline-none focus:border-[#FF5A5F]"
+                      onChange={(e) => setFeverAgeMonths(parseInt(e.target.value, 10))}
+                      className="w-full p-2.5 rounded-xl border border-[#D6C7BC] bg-[#FFFBF7] text-xs font-semibold text-[#1C1917]"
                     >
-                      <option value={1}>1 Month Old (Newborn)</option>
-                      <option value={2}>2 Months Old</option>
-                      <option value={4}>4 Months Old</option>
-                      <option value={5}>5 Months Old (Maya)</option>
-                      <option value={7}>7 Months Old</option>
-                      <option value={10}>10 Months Old</option>
-                      <option value={14}>14 Months Old (Toddler)</option>
+                      <option value={1}>1 Month (Urgent threshold)</option>
+                      <option value={2}>2 Months (Urgent threshold)</option>
+                      <option value={4}>4 Months</option>
+                      <option value={6}>6 Months</option>
+                      <option value={9}>9 Months</option>
+                      <option value={12}>12+ Months</option>
                     </select>
                   </div>
 
-                  <div>
-                    <label className="text-[11px] font-extrabold uppercase text-[#57534E] block mb-1">
-                      Measurement Site
-                    </label>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[#1C1917] block">Measurement Type:</label>
                     <select
                       value={tempMethod}
                       onChange={(e) => setTempMethod(e.target.value as any)}
-                      className="w-full bg-[#FFFBF7] border-2 border-[#D6C7BC] rounded-xl px-3 py-2 text-xs font-bold text-[#1C1917] focus:outline-none focus:border-[#FF5A5F]"
+                      className="w-full p-2.5 rounded-xl border border-[#D6C7BC] bg-[#FFFBF7] text-xs font-semibold text-[#1C1917]"
                     >
-                      <option value="rectal">Rectal (Most Accurate)</option>
+                      <option value="rectal">Rectal (AAP Gold Standard)</option>
                       <option value="forehead">Temporal / Forehead</option>
-                      <option value="axillary">Axillary (Armpit)</option>
+                      <option value="axillary">Armpit (Axillary)</option>
                     </select>
                   </div>
                 </div>
 
-                {/* Temperature Value Slider & Direct Input */}
-                <div className="bg-[#FFFBF7] p-4 rounded-2xl border-2 border-[#E7DDD5] space-y-3">
+                <div className="space-y-2 p-4 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5]">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-[#1C1917]">Temperature:</span>
-                    <div className="flex items-baseline gap-1">
-                      <span className="font-serif text-3xl font-bold text-[#1C1917]">
-                        {tempF.toFixed(1)}
-                      </span>
-                      <span className="text-sm font-bold text-[#57534E]">°F</span>
-                      <span className="text-xs font-medium text-[#57534E] ml-1">
-                        ({((tempF - 32) * 5 / 9).toFixed(1)}°C)
-                      </span>
-                    </div>
+                    <span className="font-serif text-lg font-bold text-[#B91C1C]">
+                      {tempF.toFixed(1)}°F ({((tempF - 32) * 5 / 9).toFixed(1)}°C)
+                    </span>
                   </div>
-
                   <input
                     type="range"
                     min="97.0"
@@ -588,349 +850,21 @@ Please feel free to re-submit your message in a moment!`,
                     step="0.1"
                     value={tempF}
                     onChange={(e) => setTempF(parseFloat(e.target.value))}
-                    className="w-full h-2 bg-[#D6C7BC] rounded-lg appearance-none cursor-pointer accent-[#FF5A5F]"
+                    className="w-full accent-[#FF5A5F] cursor-pointer"
                   />
-                  <div className="flex justify-between text-[10px] font-bold text-[#57534E]">
-                    <span>97.0°F (Normal)</span>
-                    <span className="text-amber-700 font-extrabold">100.4°F (Fever mark)</span>
-                    <span className="text-red-700 font-extrabold">104.0°F (High)</span>
-                  </div>
                 </div>
 
-                {/* Dynamic Triage Output */}
-                <div className={`p-4 rounded-2xl border-2 space-y-2 ${feverEval.bgColor}`}>
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs">
-                      {feverEval.badge}
-                    </span>
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider">
-                      {feverAgeMonths < 3 ? 'Age: <3m urgent rule' : 'Age: 3m+ rule'}
-                    </span>
-                  </div>
-                  <p className="text-xs leading-relaxed font-medium">
-                    {feverEval.advice}
-                  </p>
-                </div>
-
-                {/* Quick Fever Action Buttons */}
-                <div className="space-y-2">
-                  <button
-                    onClick={() => handleSendMessage(`My ${feverAgeMonths}-month-old baby has a temperature of ${tempF.toFixed(1)}°F measured via ${tempMethod}. What clinical steps should I take right now, how do I keep them comfortable, and when should I call the pediatrician?`)}
-                    className="w-full py-3 rounded-2xl bg-[#FF5A5F] hover:bg-[#FF4147] text-white font-bold text-xs shadow-md shadow-[#FF5A5F]/30 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    <Sparkles className="w-4 h-4 text-amber-200" />
-                    <span>Ask AI Doctor Detailed Care Plan for {tempF.toFixed(1)}°F</span>
-                  </button>
-
-                  <div className="grid grid-cols-2 gap-2 pt-1">
-                    <button
-                      onClick={() => handleSendMessage(`What are the safe guidelines and weight-based dosing rules for infant acetaminophen (Tylenol) vs ibuprofen (Motrin) for a ${feverAgeMonths}-month-old baby?`)}
-                      className="p-2 rounded-xl bg-[#FFFBF7] border border-[#D6C7BC] hover:border-[#FF5A5F] hover:bg-[#FFE4E6]/30 text-[11px] font-bold text-[#1C1917] transition-all text-left cursor-pointer"
-                    >
-                      💊 Safe Medication Dosing
-                    </button>
-                    <button
-                      onClick={() => handleSendMessage(`My ${feverAgeMonths}-month-old baby has a cold and stuffy nose. What are safe pediatric ways to relieve infant nasal congestion before sleep?`)}
-                      className="p-2 rounded-xl bg-[#FFFBF7] border border-[#D6C7BC] hover:border-[#FF5A5F] hover:bg-[#FFE4E6]/30 text-[11px] font-bold text-[#1C1917] transition-all text-left cursor-pointer"
-                    >
-                      🌬️ Cold & Congestion Relief
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Active Tool Card: Feeding & Nutrition */}
-            {activeTool === 'feeding' && (
-              <div className="bg-white rounded-[32px] border-2 border-[#E7DDD5] p-6 sm:p-7 shadow-sm space-y-5 animate-fadeIn">
-                <div className="flex items-center justify-between pb-3 border-b border-[#F0E6DD]">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-xl bg-[#FEF3C7] border border-[#FDE68A] flex items-center justify-center text-[#D97706]">
-                      <Milk className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-serif text-lg font-bold text-[#1C1917]">
-                        Infant Feeding & Nutrition Roadmap
-                      </h3>
-                      <p className="text-xs text-[#57534E]">Milk volumes, starting solids (BLW), & safe allergens</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Feeding Stage Selector */}
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-extrabold uppercase text-[#57534E] block">
-                    Current Feeding Stage:
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { id: 'nursing', label: 'Breastfeeding / Nursing' },
-                      { id: 'formula', label: 'Formula Feeding' },
-                      { id: 'starting_solids', label: 'Starting Solids (4–8m)' },
-                      { id: 'finger_foods', label: 'Finger Foods (9–14m)' }
-                    ].map((st) => (
-                      <button
-                        key={st.id}
-                        onClick={() => setFeedingStage(st.id as any)}
-                        className={`p-2.5 rounded-xl border-2 text-xs font-bold text-left transition-all cursor-pointer ${
-                          feedingStage === st.id
-                            ? 'bg-[#FEF3C7] border-[#F59E0B] text-[#92400E] shadow-xs'
-                            : 'bg-[#FFFBF7] border-[#E7DDD5] text-[#1C1917] hover:bg-[#F5EFEB]'
-                        }`}
-                      >
-                        {st.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Daily Milk Benchmark Box */}
-                <div className="bg-[#FFFBF7] p-4 rounded-2xl border-2 border-[#E7DDD5] space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#1C1917]">
-                      Recommended Milk / Formula:
-                    </span>
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">
-                      {feverAgeMonths <= 3 ? '22–28 oz / day' : feverAgeMonths <= 8 ? '24–32 oz / day' : '20–25 oz / day'}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-[#57534E] leading-relaxed">
-                    Breast milk or iron-fortified formula remains the primary nutritional foundation for all infants through 12 months.
-                  </p>
-                </div>
-
-                {/* Solids Readiness Checklist */}
-                <div className="space-y-2">
-                  <span className="text-xs font-extrabold uppercase text-[#57534E] block">
-                    Starting Solids & BLW Readiness Checklist:
-                  </span>
-                  {[
-                    { id: 'sitting_up', label: 'Sitting upright in highchair with strong neck control' },
-                    { id: 'tongue_thrust', label: 'Loss of tongue-thrust reflex (not pushing puree out)' },
-                    { id: 'grasping', label: 'Reaches for food and accurately brings hands to mouth' },
-                    { id: 'interest', label: 'Shows keen interest when watching parents eat' }
-                  ].map((item) => (
-                    <label
-                      key={item.id}
-                      onClick={() => toggleSolidsCheck(item.id)}
-                      className={`flex items-center gap-3 p-2.5 rounded-xl border-2 transition-all cursor-pointer text-xs font-semibold ${
-                        solidsChecked.includes(item.id)
-                          ? 'bg-[#FEF3C7] border-[#F59E0B] text-[#92400E]'
-                          : 'bg-[#FFFBF7] border-[#E7DDD5] text-[#1C1917] hover:bg-[#F5EFEB]'
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={solidsChecked.includes(item.id)}
-                        onChange={() => {}}
-                        className="w-4 h-4 rounded text-[#D97706] focus:ring-[#D97706]"
-                      />
-                      <span>{item.label}</span>
-                    </label>
-                  ))}
-                </div>
-
-                {/* Quick Actions for Feeding */}
-                <div className="space-y-2">
-                  <button
-                    onClick={() => handleSendMessage(`Can you provide a personalized pediatric feeding guide for my ${feverAgeMonths}-month-old baby (${feedingStage})? Include milk volumes, solid meal timing, and safe prep instructions.`)}
-                    className="w-full py-3 rounded-2xl bg-[#D97706] hover:bg-[#B45309] text-white font-bold text-xs shadow-md shadow-[#D97706]/30 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    <Sparkles className="w-4 h-4 text-amber-200" />
-                    <span>Ask AI Doctor for Personalized Nutrition Plan</span>
-                  </button>
-
-                  <div className="grid grid-cols-2 gap-2 pt-1">
-                    <button
-                      onClick={() => handleSendMessage(`How do I introduce top food allergens like peanut butter and egg safely to my ${feverAgeMonths}-month-old baby according to AAP guidelines?`)}
-                      className="p-2 rounded-xl bg-[#FFFBF7] border border-[#D6C7BC] hover:border-[#D97706] hover:bg-[#FEF3C7]/40 text-[11px] font-bold text-[#1C1917] transition-all text-left cursor-pointer"
-                    >
-                      🥜 Allergen Intro (Peanut/Egg)
-                    </button>
-                    <button
-                      onClick={() => handleSendMessage(`What are the best pediatrician-approved tips to relieve gas, spit-up, and tummy reflux after feeding?`)}
-                      className="p-2 rounded-xl bg-[#FFFBF7] border border-[#D6C7BC] hover:border-[#D97706] hover:bg-[#FEF3C7]/40 text-[11px] font-bold text-[#1C1917] transition-all text-left cursor-pointer"
-                    >
-                      🍼 Relieve Gas & Reflux
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTool === 'teething' && (
-              <div className="bg-white rounded-[32px] border-2 border-[#E7DDD5] p-6 sm:p-7 shadow-sm space-y-5 animate-fadeIn">
-                <div className="flex items-center justify-between pb-3 border-b border-[#F0E6DD]">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-xl bg-[#EDE9FE] border border-[#DDD6FE] flex items-center justify-center text-[#7C3AED]">
-                      <Baby className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-serif text-lg font-bold text-[#1C1917]">
-                        Teething & Gum Discomfort Checker
-                      </h3>
-                      <p className="text-xs text-[#57534E]">Identify symptoms & soothing protocols</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <span className="text-xs font-extrabold uppercase text-[#57534E] block">
-                    Check Symptoms Baby is Showing:
-                  </span>
-                  {[
-                    { id: 'drooling', label: 'Heavy drooling & chin redness' },
-                    { id: 'gnawing', label: 'Chewing/gnawing hard on toys or fingers' },
-                    { id: 'swollen_gums', label: 'Visible red, swollen gum mounds' },
-                    { id: 'fussiness', label: 'Increased night wakings & fussiness' },
-                    { id: 'ear_rubbing', label: 'Rubbing cheeks or pulling ears' }
-                  ].map((s) => (
-                    <label
-                      key={s.id}
-                      onClick={() => toggleTeethingSymptom(s.id)}
-                      className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer text-xs font-semibold ${
-                        checkedSymptoms.includes(s.id)
-                          ? 'bg-[#EDE9FE] border-[#8B5CF6] text-[#5B21B6]'
-                          : 'bg-[#FFFBF7] border-[#E7DDD5] text-[#1C1917] hover:bg-[#F5EFEB]'
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={checkedSymptoms.includes(s.id)}
-                        onChange={() => {}}
-                        className="w-4 h-4 rounded text-[#7C3AED] focus:ring-[#7C3AED]"
-                      />
-                      <span>{s.label}</span>
-                    </label>
-                  ))}
-                </div>
-
-                {/* Evidence Based Teething Remedies */}
-                <div className="p-4 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-2 text-xs text-[#1C1917]">
-                  <strong className="block font-bold text-[#7C3AED]">
-                    💡 Pediatrician Approved Teething Comfort:
-                  </strong>
-                  <ul className="list-disc pl-4 space-y-1 text-xs text-[#44403C]">
-                    <li>Chilled (not frozen solid) silicone teethers or clean damp washcloth.</li>
-                    <li>Gentle gum massage with your clean finger.</li>
-                    <li>Avoid numbing gels containing benzocaine or belladonna (FDA warning).</li>
-                  </ul>
+                <div className={`p-4 rounded-2xl border-2 text-xs leading-relaxed ${feverEval.bgColor}`}>
+                  <strong className="block font-bold mb-1">💡 Clinical Guidance:</strong>
+                  {feverEval.advice}
                 </div>
 
                 <button
-                  onClick={() => handleSendMessage(`My baby is showing teething symptoms (${checkedSymptoms.join(', ')}). How can I help soothe the pain and help them sleep better tonight?`)}
-                  className="w-full py-3 rounded-2xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold text-xs shadow-md shadow-[#7C3AED]/30 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
+                  onClick={() => handleSendMessage(`My ${feverAgeMonths}-month-old baby has a temperature of ${tempF.toFixed(1)}°F taken ${tempMethod}. What are the immediate pediatric recommendations?`)}
+                  className="w-full py-3 rounded-2xl bg-[#FF5A5F] hover:bg-[#FF4147] text-white font-bold text-xs shadow-md shadow-[#FF5A5F]/30 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
                 >
-                  <Sparkles className="w-4 h-4 text-amber-200" />
-                  <span>Get Personalized Teething Relief Plan</span>
-                </button>
-              </div>
-            )}
-
-            {activeTool === 'safe_sleep' && (
-              <div className="bg-white rounded-[32px] border-2 border-[#E7DDD5] p-6 sm:p-7 shadow-sm space-y-5 animate-fadeIn">
-                <div className="flex items-center justify-between pb-3 border-b border-[#F0E6DD]">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-xl bg-[#E0F2FE] border border-[#BAE6FD] flex items-center justify-center text-[#0284C7]">
-                      <ShieldCheck className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-serif text-lg font-bold text-[#1C1917]">
-                        AAP Safe Sleep ABC Checklist
-                      </h3>
-                      <p className="text-xs text-[#57534E]">American Academy of Pediatrics Standards</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  {[
-                    { id: 'back_sleep', label: 'A: Alone on their back for every sleep', desc: 'Prevents airway obstruction and lowers SIDS risk by over 50%.' },
-                    { id: 'flat_firm', label: 'B: Back on a Firm, Flat Mattress', desc: 'Tight-fitting sheet only with zero incline.' },
-                    { id: 'empty_crib', label: 'C: Empty Crib (Zero pillows, blankets, bumpers)', desc: 'Keep crib clear; use a wearable sleep sack for warmth.' },
-                    { id: 'room_share', label: 'D: Room sharing in same room for 6+ months', desc: 'Keep crib near parental bed for easy monitoring.' }
-                  ].map((item) => (
-                    <div
-                      key={item.id}
-                      onClick={() => toggleSafeSleep(item.id)}
-                      className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer ${
-                        safeSleepChecked.includes(item.id)
-                          ? 'bg-[#F0FDF4] border-[#22C55E] text-[#14532D]'
-                          : 'bg-[#FFFBF7] border-[#E7DDD5] text-[#1C1917]'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-xs text-[#1C1917]">{item.label}</span>
-                        <CheckCircle2 className={`w-4 h-4 ${safeSleepChecked.includes(item.id) ? 'text-[#16A34A]' : 'text-[#D6C7BC]'}`} />
-                      </div>
-                      <p className="text-[11px] text-[#57534E] mt-1">
-                        {item.desc}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                <button
-                  onClick={() => handleSendMessage('Can you review the AAP Safe Sleep guidelines and check if my nursery sleep setup is 100% safe?')}
-                  className="w-full py-3 rounded-2xl bg-[#0284C7] hover:bg-[#0369A1] text-white font-bold text-xs shadow-md shadow-[#0284C7]/30 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <Sparkles className="w-4 h-4 text-amber-200" />
-                  <span>Ask AI Doctor to Audit My Sleep Environment</span>
-                </button>
-              </div>
-            )}
-
-            {activeTool === 'colic' && (
-              <div className="bg-white rounded-[32px] border-2 border-[#E7DDD5] p-6 sm:p-7 shadow-sm space-y-5 animate-fadeIn">
-                <div className="flex items-center justify-between pb-3 border-b border-[#F0E6DD]">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-xl bg-[#FEF3C7] border border-[#FDE68A] flex items-center justify-center text-[#D97706]">
-                      <Milk className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-serif text-lg font-bold text-[#1C1917]">
-                        Infant Gas, Reflux & Colic Calmer
-                      </h3>
-                      <p className="text-xs text-[#57534E]">Tummy relief and post-feed digestion</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2 text-xs">
-                  <div className="p-3.5 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5]">
-                    <strong className="block font-bold text-[#D97706] mb-1">
-                      1. The 20-Minute Upright Rule:
-                    </strong>
-                    <p className="text-[#44403C] leading-relaxed">
-                      Hold baby upright against your shoulder for 15–20 minutes after feeds to let gravity prevent milk backflow.
-                    </p>
-                  </div>
-
-                  <div className="p-3.5 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5]">
-                    <strong className="block font-bold text-[#D97706] mb-1">
-                      2. Bicycle Legs & Tummy Massage:
-                    </strong>
-                    <p className="text-[#44403C] leading-relaxed">
-                      Gently pedal baby’s legs towards their chest and massage their tummy in clockwise circles to relieve trapped gas bubbles.
-                    </p>
-                  </div>
-
-                  <div className="p-3.5 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5]">
-                    <strong className="block font-bold text-[#D97706] mb-1">
-                      3. Paced Bottle Feeding:
-                    </strong>
-                    <p className="text-[#44403C] leading-relaxed">
-                      Keep the bottle horizontal rather than vertical so baby controls the milk flow and swallows less air.
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => handleSendMessage('My baby is arching their back and crying after feeds with gas/reflux. What can I do to relieve their tummy discomfort?')}
-                  className="w-full py-3 rounded-2xl bg-[#D97706] hover:bg-[#B45309] text-white font-bold text-xs shadow-md shadow-[#D97706]/30 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <Sparkles className="w-4 h-4 text-amber-200" />
-                  <span>Ask AI Doctor for Colic/Gas Solutions</span>
+                  <Sparkles className="w-4 h-4 text-rose-200" />
+                  <span>Ask AI Doctor About This Temperature</span>
                 </button>
               </div>
             )}
@@ -943,12 +877,12 @@ Please feel free to re-submit your message in a moment!`,
               </span>
               <div className="flex flex-wrap gap-2">
                 {[
-                  "Why does baby spit up curd-like stuff after formula?",
+                  "How to start peanut allergen safely?",
+                  "Why does baby spit up curd-like formula?",
                   "What do different baby poop colors mean?",
+                  "Help with the 4-month sleep regression!",
                   "When to transition 3 naps to 2 naps?",
-                  "Is 100.4°F fever emergency for young baby?",
-                  "How to start Baby-Led Weaning safely?",
-                  "Help with the 4-month sleep regression!"
+                  "Is 100.4°F fever emergency for young baby?"
                 ].map((q, idx) => (
                   <button
                     key={idx}
@@ -1000,7 +934,7 @@ Please feel free to re-submit your message in a moment!`,
                           id: 'welcome-reset',
                           role: 'assistant',
                           content: `### 🩺 Consultation Reset
-Ready for your questions regarding sleep, infant health, fevers, and baby milestones. How can I assist?`,
+Ready for your questions regarding sleep, infant health, fevers, solids, allergens, and baby milestones. How can I assist?`,
                           timestamp: 'Now'
                         }
                       ]);
@@ -1045,40 +979,40 @@ Ready for your questions regarding sleep, infant health, fevers, and baby milest
                         }`}
                       >
                         {isUser ? (
-                          <p className="text-sm font-medium whitespace-pre-wrap leading-relaxed">
+                          <p className="text-base font-semibold whitespace-pre-wrap leading-relaxed">
                             {msg.content}
                           </p>
                         ) : (
-                          <div className="text-sm leading-relaxed text-[#1C1917] space-y-2 prose prose-stone max-w-none">
+                          <div className="text-base leading-relaxed text-[#1C1917] space-y-3 prose prose-stone max-w-none">
                             <ReactMarkdown
                               components={{
                                 h3: ({ children }) => (
-                                  <h3 className="font-serif text-base font-bold text-[#1C1917] mt-1 mb-2">
+                                  <h3 className="font-serif text-lg font-bold text-[#1C1917] mt-3 mb-2 pb-1 border-b border-[#E7DDD5]">
                                     {children}
                                   </h3>
                                 ),
                                 h4: ({ children }) => (
-                                  <h4 className="font-bold text-sm text-[#1C1917] mt-2 mb-1">
+                                  <h4 className="font-bold text-base text-[#1C1917] mt-3 mb-1.5 flex items-center gap-1.5">
                                     {children}
                                   </h4>
                                 ),
                                 p: ({ children }) => (
-                                  <p className="text-sm text-[#1C1917] leading-relaxed mb-2 last:mb-0">
+                                  <p className="text-base text-[#1C1917] leading-relaxed mb-2.5 last:mb-0">
                                     {children}
                                   </p>
                                 ),
                                 ul: ({ children }) => (
-                                  <ul className="list-disc pl-5 space-y-1 my-2 text-sm text-[#1C1917]">
+                                  <ul className="list-disc pl-6 space-y-2 my-2.5 text-base text-[#1C1917]">
                                     {children}
                                   </ul>
                                 ),
                                 ol: ({ children }) => (
-                                  <ol className="list-decimal pl-5 space-y-1 my-2 text-sm text-[#1C1917]">
+                                  <ol className="list-decimal pl-6 space-y-2 my-2.5 text-base text-[#1C1917]">
                                     {children}
                                   </ol>
                                 ),
                                 li: ({ children }) => (
-                                  <li className="text-sm text-[#1C1917]">
+                                  <li className="text-base text-[#1C1917] leading-relaxed">
                                     {children}
                                   </li>
                                 ),
@@ -1088,7 +1022,7 @@ Ready for your questions regarding sleep, infant health, fevers, and baby milest
                                   </strong>
                                 ),
                                 blockquote: ({ children }) => (
-                                  <blockquote className="border-l-4 border-[#FF5A5F] pl-3 py-1 my-2 bg-[#FFF1F2] rounded-r-lg text-xs font-semibold text-[#9F1239]">
+                                  <blockquote className="border-l-4 border-[#FF5A5F] pl-4 py-2.5 my-3 bg-[#FFF1F2] rounded-r-2xl text-base font-semibold text-[#9F1239] leading-relaxed">
                                     {children}
                                   </blockquote>
                                 )
@@ -1096,112 +1030,79 @@ Ready for your questions regarding sleep, infant health, fevers, and baby milest
                             >
                               {msg.content}
                             </ReactMarkdown>
-
-                            <div className="pt-2 border-t border-[#F0E6DD]/60 flex items-center justify-between text-[10px] text-[#57534E]">
-                              <span>{msg.timestamp}</span>
-                              <button
-                                onClick={() => handleCopy(msg.content, msg.id)}
-                                className="flex items-center gap-1 text-[#57534E] hover:text-[#1C1917] font-bold transition-colors cursor-pointer"
-                              >
-                                {copiedId === msg.id ? (
-                                  <>
-                                    <Check className="w-3 h-3 text-[#22C55E]" />
-                                    <span className="text-[#22C55E]">Copied</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Copy className="w-3 h-3" />
-                                    <span>Copy</span>
-                                  </>
-                                )}
-                              </button>
-                            </div>
                           </div>
                         )}
-                      </div>
 
-                      {isUser && (
-                        <div className="w-8 h-8 rounded-xl bg-[#1C1917] text-white flex items-center justify-center font-bold text-xs shrink-0 mt-1">
-                          👤
+                        <div className="flex items-center justify-between gap-4 mt-2 pt-1 border-t border-black/5 text-[10px] opacity-70">
+                          <span>{msg.timestamp}</span>
+                          {!isUser && (
+                            <button
+                              onClick={() => handleCopy(msg.content, msg.id)}
+                              className="hover:opacity-100 flex items-center gap-1 cursor-pointer"
+                            >
+                              {copiedId === msg.id ? (
+                                <>
+                                  <Check className="w-3 h-3 text-green-600" />
+                                  <span className="text-green-600">Copied</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3 h-3" />
+                                  <span>Copy</span>
+                                </>
+                              )}
+                            </button>
+                          )}
                         </div>
-                      )}
+                      </div>
                     </div>
                   );
                 })}
 
                 {isLoading && (
-                  <div className="flex gap-3 justify-start animate-fadeIn">
-                    <div className="w-8 h-8 rounded-xl bg-[#FFE4E6] border border-[#FECDD3] flex items-center justify-center text-[#FF5A5F] shrink-0">
-                      <Stethoscope className="w-4 h-4 animate-spin-slow" />
+                  <div className="flex gap-3 justify-start items-center">
+                    <div className="w-8 h-8 rounded-xl bg-[#FFE4E6] border border-[#FECDD3] flex items-center justify-center text-[#FF5A5F] shrink-0 animate-pulse">
+                      <Stethoscope className="w-4 h-4" />
                     </div>
-                    <div className="bg-white border-2 border-[#E7DDD5] rounded-2xl rounded-bl-none p-4 shadow-xs flex items-center gap-3 text-xs font-bold text-[#57534E]">
-                      <div className="flex gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-[#FF5A5F] animate-bounce" />
-                        <span className="w-2 h-2 rounded-full bg-[#FF5A5F] animate-bounce [animation-delay:0.2s]" />
-                        <span className="w-2 h-2 rounded-full bg-[#FF5A5F] animate-bounce [animation-delay:0.4s]" />
-                      </div>
-                      <span>Dr. Lullaby is reviewing clinical pediatric protocols...</span>
+                    <div className="bg-white border border-[#E7DDD5] rounded-2xl p-4 shadow-xs flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-[#FF5A5F] animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <div className="w-2 h-2 rounded-full bg-[#FF5A5F] animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <div className="w-2 h-2 rounded-full bg-[#FF5A5F] animate-bounce" style={{ animationDelay: '300ms' }} />
+                      <span className="text-xs text-[#57534E] ml-2 font-medium">Consulting AAP pediatric guidelines...</span>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Suggested Questions Pills */}
-              <div className="px-4 py-2 bg-[#FFFBF7] border-t border-[#F0E6DD] flex items-center gap-1.5 overflow-x-auto scrollbar-none shrink-0">
-                <span className="text-[10px] font-extrabold uppercase text-[#78716C] shrink-0">Try Asking:</span>
-                {[
-                  "Lactose intolerance symptoms & remedies to fix",
-                  "What's the difference between lactose intolerance & CMPA?",
-                  "Why does baby spit up curdled formula?",
-                  "Which hypoallergenic formula is best for milk sensitivity?",
-                  "How to soothe severe baby gas & bloating"
-                ].map((suggested, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleSendMessage(suggested)}
-                    className="px-2.5 py-1 rounded-lg bg-white border border-[#E7DDD5] hover:border-[#EA580C] hover:text-[#EA580C] text-[11px] font-semibold text-[#57534E] whitespace-nowrap transition-colors cursor-pointer shrink-0"
-                  >
-                    {suggested}
-                  </button>
-                ))}
-              </div>
-
-              {/* Chat Input Bar */}
-              <div className="p-4 bg-white border-t border-[#F0E6DD] space-y-2 shrink-0">
+              {/* Chat Input */}
+              <div className="p-4 bg-white border-t border-[#F0E6DD]">
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
                     handleSendMessage();
                   }}
-                  className="flex items-center gap-2"
+                  className="flex gap-2"
                 >
                   <input
                     type="text"
                     value={inputQuery}
                     onChange={(e) => setInputQuery(e.target.value)}
-                    placeholder="Ask Dr. Lullaby any question (e.g. fever thresholds, wake windows, colic, BLW)..."
-                    className="flex-1 bg-[#FFFBF7] border-2 border-[#D6C7BC] focus:border-[#FF5A5F] rounded-2xl px-4 py-3 text-sm text-[#1C1917] placeholder:text-[#57534E]/60 focus:outline-none transition-all"
+                    placeholder={`Ask about fever, spit-up, sleep regressions, or allergens...`}
                     disabled={isLoading}
+                    className="flex-1 px-4 py-3 rounded-2xl border-2 border-[#D6C7BC] bg-[#FFFBF7] text-sm text-[#1C1917] focus:outline-hidden focus:border-[#FF5A5F] focus:bg-white transition-all disabled:opacity-50"
                   />
-
                   <button
                     type="submit"
                     disabled={!inputQuery.trim() || isLoading}
-                    className="h-11 px-5 rounded-2xl bg-[#FF5A5F] hover:bg-[#FF4147] text-white font-bold text-sm shadow-md shadow-[#FF5A5F]/35 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+                    className="px-5 py-3 rounded-2xl bg-[#FF5A5F] text-white hover:bg-[#FF4147] font-bold text-sm shadow-md shadow-[#FF5A5F]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer flex items-center gap-1.5 shrink-0 active:scale-95"
                   >
-                    <span>Ask</span>
+                    <span>Send</span>
                     <Send className="w-4 h-4" />
                   </button>
                 </form>
-
-                <div className="flex items-center justify-between text-[10px] text-[#57534E] px-1">
-                  <span className="flex items-center gap-1">
-                    <ShieldAlert className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                    <strong>Educational Pediatric Guidance:</strong> For acute medical distress, call your pediatrician or 911.
-                  </span>
-                  <span className="hidden sm:inline">24/7 AI Service</span>
-                </div>
+                <p className="text-[10px] text-[#78716C] text-center mt-2">
+                  *Pediatric AI guidance is for informational & educational purposes based on AAP literature. Always consult your baby's physician for medical diagnosis.
+                </p>
               </div>
 
             </div>

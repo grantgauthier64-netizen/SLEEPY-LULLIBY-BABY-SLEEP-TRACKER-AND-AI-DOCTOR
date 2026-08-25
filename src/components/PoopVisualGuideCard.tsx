@@ -348,36 +348,46 @@ export const PoopVisualGuideCard: React.FC<PoopVisualGuideCardProps> = ({
           </div>
 
           {/* Detailed Color Explanation Card */}
-          <div className={`p-4 rounded-2xl border-2 transition-all space-y-2 text-xs ${
+          <div className={`p-5 rounded-3xl border-2 transition-all space-y-3 ${
             currentColor.badgeType === 'emergency' 
-              ? 'bg-red-50/90 border-red-300 text-red-950' 
+              ? 'bg-red-50/95 border-red-300 text-red-950' 
               : currentColor.badgeType === 'monitor'
-              ? 'bg-amber-50/90 border-amber-300 text-amber-950'
-              : 'bg-[#FFFBF7] border-[#E7DDD5] text-[#44403C]'
+              ? 'bg-amber-50/95 border-amber-300 text-amber-950'
+              : 'bg-[#FFFBF7] border-[#E7DDD5] text-[#292524]'
           }`}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-black/10">
+              <div className="flex items-center gap-2.5">
                 <span 
-                  className="w-4 h-4 rounded-full border border-black/20" 
+                  className="w-5 h-5 rounded-full border border-black/20 shadow-xs" 
                   style={{ backgroundColor: currentColor.hex }}
                 />
-                <h4 className="font-serif text-sm font-bold text-[#1C1917]">
+                <h4 className="font-serif text-base sm:text-lg font-bold text-[#1C1917]">
                   {currentColor.title}
                 </h4>
               </div>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
-                currentColor.isNormal ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+              <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide self-start sm:self-auto ${
+                currentColor.isNormal ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-red-100 text-red-800 border border-red-300'
               }`}>
                 {currentColor.isNormal ? '✅ Safe & Expected' : '⚠️ Medical Attention'}
               </span>
             </div>
 
-            <p className="leading-relaxed">
-              <strong>🔬 Biological Cause:</strong> {currentColor.causes}
-            </p>
-            <p className="leading-relaxed">
-              <strong>💡 Pediatric Guidance:</strong> {currentColor.notes}
-            </p>
+            <div className="p-3.5 rounded-2xl bg-white/80 border border-black/5 space-y-1">
+              <span className="text-xs font-extrabold uppercase text-[#57534E] block">🔬 Biological Cause:</span>
+              <p className="text-sm sm:text-base text-[#1C1917] leading-relaxed font-medium">
+                {currentColor.causes}
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white border-2 border-[#EA580C]/30 shadow-xs space-y-1.5">
+              <span className="text-xs font-extrabold uppercase text-[#EA580C] block flex items-center gap-1.5">
+                <span>💡</span>
+                <span>Pediatric Clinical Guidance & Action:</span>
+              </span>
+              <p className="text-base sm:text-lg text-[#1C1917] leading-relaxed font-bold">
+                {currentColor.notes}
+              </p>
+            </div>
           </div>
         </div>
       )}
@@ -433,27 +443,37 @@ export const PoopVisualGuideCard: React.FC<PoopVisualGuideCardProps> = ({
           </div>
 
           {/* Texture Detail Card */}
-          <div className="p-4 rounded-2xl bg-[#F0F9FF] border-2 border-[#BAE6FD] text-xs text-[#0C4A6E] space-y-2">
-            <div className="flex items-center justify-between">
+          <div className="p-5 rounded-3xl bg-[#F0F9FF] border-2 border-[#BAE6FD] text-[#0C4A6E] space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-[#BAE6FD]">
               <div className="flex items-center gap-2">
-                <span className="text-xl">{currentTexture.emoji}</span>
-                <h4 className="font-serif text-sm font-bold text-[#0369A1]">
+                <span className="text-2xl">{currentTexture.emoji}</span>
+                <h4 className="font-serif text-base sm:text-lg font-bold text-[#0369A1]">
                   {currentTexture.name} Consistency Analysis
                 </h4>
               </div>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
-                currentTexture.isNormal ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+              <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide ${
+                currentTexture.isNormal ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-amber-100 text-amber-800 border border-amber-300'
               }`}>
                 {currentTexture.isNormal ? 'Normal Texture' : 'Needs Care / Hydration'}
               </span>
             </div>
 
-            <p className="leading-relaxed">
-              <strong>🩺 Appearance:</strong> {currentTexture.description}
-            </p>
-            <p className="leading-relaxed">
-              <strong>💧 Action & Hydration:</strong> {currentTexture.consistencyAdvice}
-            </p>
+            <div className="p-3.5 rounded-2xl bg-white/80 border border-[#BAE6FD]/40 space-y-1">
+              <span className="text-xs font-extrabold uppercase text-[#0369A1] block">🩺 Appearance:</span>
+              <p className="text-sm sm:text-base text-[#0C4A6E] leading-relaxed font-medium">
+                {currentTexture.description}
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white border-2 border-[#0284C7]/30 shadow-xs space-y-1.5">
+              <span className="text-xs font-extrabold uppercase text-[#0284C7] block flex items-center gap-1.5">
+                <span>💧</span>
+                <span>Action & Hydration Guidance:</span>
+              </span>
+              <p className="text-base sm:text-lg text-[#0C4A6E] leading-relaxed font-bold">
+                {currentTexture.consistencyAdvice}
+              </p>
+            </div>
           </div>
         </div>
       )}
@@ -461,12 +481,12 @@ export const PoopVisualGuideCard: React.FC<PoopVisualGuideCardProps> = ({
       {/* TAB 3: COMBINED REPORT MATRIX */}
       {activeTab === 'matrix' && (
         <div className="space-y-4 animate-fadeIn">
-          <div className="p-4 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-3">
-            <div className="flex items-center justify-between border-b border-[#F0E6DD] pb-2.5">
-              <span className="text-xs font-extrabold uppercase text-[#1C1917] tracking-wider">
+          <div className="p-5 rounded-3xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#F0E6DD] pb-3">
+              <span className="text-sm font-extrabold uppercase text-[#1C1917] tracking-wider">
                 Combined Stool Analysis for {babyName}
               </span>
-              <span className={`px-3 py-1 rounded-full text-xs font-black uppercase ${
+              <span className={`px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wide self-start sm:self-auto ${
                 isEmergency 
                   ? 'bg-red-600 text-white animate-pulse' 
                   : isWarning 
@@ -477,33 +497,36 @@ export const PoopVisualGuideCard: React.FC<PoopVisualGuideCardProps> = ({
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="p-3 rounded-xl bg-white border border-[#E7DDD5]">
-                <span className="text-[10px] font-extrabold text-[#78716C] uppercase block mb-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              <div className="p-3.5 rounded-2xl bg-white border-2 border-[#E7DDD5]">
+                <span className="text-xs font-extrabold text-[#78716C] uppercase block mb-1">
                   Selected Color:
                 </span>
                 <div className="flex items-center gap-2">
-                  <span className="w-3.5 h-3.5 rounded-full border border-black/20" style={{ backgroundColor: currentColor.hex }} />
-                  <span className="font-bold text-[#1C1917]">{currentColor.name}</span>
+                  <span className="w-4 h-4 rounded-full border border-black/20" style={{ backgroundColor: currentColor.hex }} />
+                  <span className="font-bold text-[#1C1917] text-base">{currentColor.name}</span>
                 </div>
-                <p className="text-[11px] text-[#57534E] mt-1">{currentColor.badge}</p>
+                <p className="text-xs text-[#57534E] mt-1">{currentColor.badge}</p>
               </div>
 
-              <div className="p-3 rounded-xl bg-white border border-[#E7DDD5]">
-                <span className="text-[10px] font-extrabold text-[#78716C] uppercase block mb-1">
+              <div className="p-3.5 rounded-2xl bg-white border-2 border-[#E7DDD5]">
+                <span className="text-xs font-extrabold text-[#78716C] uppercase block mb-1">
                   Selected Texture:
                 </span>
-                <div className="flex items-center gap-1.5">
-                  <span>{currentTexture.emoji}</span>
-                  <span className="font-bold text-[#1C1917]">{currentTexture.name}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{currentTexture.emoji}</span>
+                  <span className="font-bold text-[#1C1917] text-base">{currentTexture.name}</span>
                 </div>
-                <p className="text-[11px] text-[#57534E] mt-1">{currentTexture.badge}</p>
+                <p className="text-xs text-[#57534E] mt-1">{currentTexture.badge}</p>
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-white border border-[#E7DDD5] text-xs space-y-1.5">
-              <h5 className="font-bold text-[#1C1917]">📋 Pediatric Summary:</h5>
-              <p className="text-[#44403C] leading-relaxed">
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border-2 border-[#EA580C]/40 shadow-xs space-y-2">
+              <div className="flex items-center gap-2 text-[#EA580C] font-extrabold text-sm sm:text-base uppercase tracking-wider">
+                <span>📋</span>
+                <span>Pediatric Summary & Recommended Action:</span>
+              </div>
+              <p className="text-base sm:text-lg font-bold text-[#1C1917] leading-relaxed">
                 {currentColor.id === 'mustard_yellow' && currentTexture.id === 'runny' && (
                   "Classic healthy breastfed stool! Runny mustard yellow with soft milk fat curds. Excellent digestion."
                 )}

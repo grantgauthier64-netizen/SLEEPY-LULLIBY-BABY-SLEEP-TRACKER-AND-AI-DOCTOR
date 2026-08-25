@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, ShieldAlert, CheckCircle2, Info, AlertTriangle, Milk, HeartHandshake, HelpCircle, Activity, Stethoscope } from 'lucide-react';
+import { Sparkles, ShieldAlert, CheckCircle2, Info, AlertTriangle, Milk, HeartHandshake, HelpCircle, Activity, Stethoscope, ArrowRight } from 'lucide-react';
 
 export interface SymptomItem {
   id: string;
@@ -105,7 +105,7 @@ export const LactoseIntoleranceCard: React.FC<LactoseIntoleranceCardProps> = ({
     badge: 'Normal Infant Digestion / Gas',
     badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
     summary: 'Selected symptoms are very common in normal infant digestion, gas, or mild colic. True congenital lactose intolerance is extremely rare in young babies because breast milk and standard infant formulas naturally contain high lactose to fuel brain development.',
-    nextStep: 'Continue current feeding routine. Use paced feeding, upright burping, and gentle bicycle kicks.'
+    nextStep: 'Continue current feeding routine. Practice paced bottle feeding, keep baby upright for 20 minutes post-feed, and do gentle bicycle leg kicks.'
   };
 
   if (hasCMPASymptoms) {
@@ -114,7 +114,7 @@ export const LactoseIntoleranceCard: React.FC<LactoseIntoleranceCardProps> = ({
       badge: "CMPA / Milk Allergy (Immune Response)",
       badgeColor: "bg-red-100 text-red-800 border-red-300",
       summary: "Presence of blood/mucus in stool and/or eczema strongly points toward Cow's Milk Protein Allergy (CMPA) rather than lactose intolerance. CMPA is an immune reaction to the proteins (casein/whey) in cow's milk, affecting ~2–7% of babies.",
-      nextStep: "Consult your pediatrician about transitioning to an Extensively Hydrolyzed Formula (e.g. Nutramigen/Alimentum) or maternal dairy elimination if breastfeeding."
+      nextStep: "Consult your pediatrician about transitioning to an Extensively Hydrolyzed Formula (e.g. Nutramigen / Alimentum) or maternal dairy elimination if breastfeeding."
     };
   } else if (hasSecondaryClue && lactoseCount >= 2) {
     assessmentResult = {
@@ -130,7 +130,7 @@ export const LactoseIntoleranceCard: React.FC<LactoseIntoleranceCardProps> = ({
       badge: 'Dairy Sensitivity / Lactose Imbalance',
       badgeColor: 'bg-orange-100 text-orange-800 border-orange-300',
       summary: 'Multiple symptoms of gut irritation post-feeding. In breastfed babies, this is often a "foremilk/hindmilk imbalance" (too much watery sugar-rich foremilk before rich hindmilk). In bottle-fed babies, it may indicate sensitivity to standard cow-milk formula.',
-      nextStep: 'For nursing moms: ensure one breast is fully emptied before switching. For formula: discuss gentle/hydrolyzed options with pediatrician.'
+      nextStep: 'For nursing moms: ensure one breast is fully emptied before switching. For formula: discuss gentle or hydrolyzed options with pediatrician.'
     };
   }
 
@@ -218,18 +218,18 @@ export const LactoseIntoleranceCard: React.FC<LactoseIntoleranceCardProps> = ({
 
       {/* TAB 1: INTERACTIVE SYMPTOM CHECKER */}
       {activeTab === 'checker' && (
-        <div className="space-y-4 animate-fadeIn">
+        <div className="space-y-5 animate-fadeIn">
           <div className="flex items-center justify-between">
             <span className="text-xs font-extrabold uppercase text-[#57534E] tracking-wider">
               Check all symptoms currently affecting {babyName}:
             </span>
-            <span className="text-[11px] font-bold text-[#EA580C]">
+            <span className="text-xs font-bold text-[#EA580C] bg-[#FFF7ED] px-2.5 py-0.5 rounded-full border border-[#FED7AA]">
               {selectedSymptoms.length} Selected
             </span>
           </div>
 
           {/* Symptom selection list */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {SYMPTOM_LIST.map((sym) => {
               const isChecked = selectedSymptoms.includes(sym.id);
               return (
@@ -252,12 +252,12 @@ export const LactoseIntoleranceCard: React.FC<LactoseIntoleranceCardProps> = ({
                     <div className="flex items-center gap-1.5">
                       <span className="text-xs font-bold text-[#1C1917]">{sym.label}</span>
                       {sym.isCMPAOnly && (
-                        <span className="text-[9px] font-black uppercase px-1.5 py-0.2 bg-red-100 text-red-700 rounded-md">
+                        <span className="text-[9px] font-black uppercase px-1.5 py-0.5 bg-red-100 text-red-700 rounded-md">
                           CMPA Clue
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] text-[#57534E] mt-0.5 leading-relaxed">
+                    <p className="text-xs text-[#57534E] mt-1 leading-relaxed">
                       {sym.description}
                     </p>
                   </div>
@@ -266,23 +266,33 @@ export const LactoseIntoleranceCard: React.FC<LactoseIntoleranceCardProps> = ({
             })}
           </div>
 
-          {/* Assessment Output Card */}
-          <div className={`p-4 rounded-2xl border-2 space-y-2 text-xs transition-all ${
-            hasCMPASymptoms ? 'bg-red-50/90 border-red-300 text-red-950' : 'bg-[#FFFBF7] border-[#FED7AA] text-[#44403C]'
+          {/* Assessment Output Card with Prominent, Large Recommended Action */}
+          <div className={`p-5 rounded-3xl border-2 space-y-4 transition-all ${
+            hasCMPASymptoms ? 'bg-red-50/95 border-red-300 text-red-950' : 'bg-[#FFFBF7] border-[#FED7AA] text-[#44403C]'
           }`}>
-            <div className="flex items-center justify-between">
-              <h4 className="font-serif text-sm font-bold text-[#1C1917] flex items-center gap-2">
-                <Stethoscope className="w-4 h-4 text-[#EA580C]" />
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-black/10">
+              <h4 className="font-serif text-base sm:text-lg font-bold text-[#1C1917] flex items-center gap-2">
+                <Stethoscope className="w-5 h-5 text-[#EA580C]" />
                 {assessmentResult.title}
               </h4>
-              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase border ${assessmentResult.badgeColor}`}>
+              <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide border self-start sm:self-auto ${assessmentResult.badgeColor}`}>
                 {assessmentResult.badge}
               </span>
             </div>
-            <p className="leading-relaxed">{assessmentResult.summary}</p>
-            <div className="pt-2 border-t border-black/10 flex items-center gap-1.5 text-[#1C1917]">
-              <strong>💡 Recommended Action:</strong>
-              <span>{assessmentResult.nextStep}</span>
+
+            <p className="text-sm sm:text-base text-[#292524] leading-relaxed font-normal">
+              {assessmentResult.summary}
+            </p>
+
+            {/* HIGH-VISIBILITY LARGE RECOMMENDED ACTIONS BLOCK */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border-2 border-[#EA580C]/40 shadow-sm space-y-2">
+              <div className="flex items-center gap-2 text-[#EA580C] font-extrabold text-sm sm:text-base uppercase tracking-wider">
+                <span className="text-lg">💡</span>
+                <span>Recommended Action & Next Steps:</span>
+              </div>
+              <p className="text-base sm:text-lg font-semibold text-[#1C1917] leading-relaxed">
+                {assessmentResult.nextStep}
+              </p>
             </div>
           </div>
         </div>
@@ -291,56 +301,62 @@ export const LactoseIntoleranceCard: React.FC<LactoseIntoleranceCardProps> = ({
       {/* TAB 2: LACTOSE INTOLERANCE VS CMPA COMPARISON */}
       {activeTab === 'difference' && (
         <div className="space-y-4 animate-fadeIn">
-          <div className="p-3.5 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] text-xs text-[#57534E] leading-relaxed">
-            <strong className="text-[#1C1917]">Crucial Pediatric Distinction:</strong> Parents often confuse <em>Lactose Intolerance</em> with <em>Cow's Milk Protein Allergy (CMPA)</em>. They are completely different biological conditions requiring different solutions.
+          <div className="p-4 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] text-sm text-[#292524] leading-relaxed">
+            <strong className="text-[#1C1917] font-bold">Crucial Pediatric Distinction:</strong> Parents often confuse <em>Lactose Intolerance</em> with <em>Cow's Milk Protein Allergy (CMPA)</em>. They are completely different biological conditions requiring different solutions.
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             {/* Lactose Intolerance Column */}
-            <div className="p-4 rounded-2xl bg-[#FFF7ED] border-2 border-[#FED7AA] space-y-2.5">
-              <div className="flex items-center justify-between border-b border-[#FDBA74] pb-2">
-                <h4 className="font-serif font-bold text-sm text-[#9A3412] flex items-center gap-1.5">
-                  <Milk className="w-4 h-4" /> Lactose Intolerance
+            <div className="p-5 rounded-2xl bg-[#FFF7ED] border-2 border-[#FED7AA] space-y-3">
+              <div className="flex items-center justify-between border-b border-[#FDBA74] pb-2.5">
+                <h4 className="font-serif font-bold text-base text-[#9A3412] flex items-center gap-2">
+                  <Milk className="w-5 h-5" /> Lactose Intolerance
                 </h4>
-                <span className="px-2 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-800">
+                <span className="px-2.5 py-1 rounded-md text-xs font-black bg-amber-100 text-amber-800">
                   Enzyme Deficiency
                 </span>
               </div>
-              <p className="text-[#431407]">
-                <strong>What it is:</strong> Inability to digest <strong>lactose (milk sugar)</strong> due to insufficient *lactase enzyme* in the small intestine.
+              <p className="text-[#431407] text-sm leading-relaxed">
+                <strong>What it is:</strong> Inability to digest <strong>lactose (milk sugar)</strong> due to insufficient lactase enzyme in the small intestine.
               </p>
-              <ul className="space-y-1 text-[#7C2D12] list-disc list-inside">
-                <li>Rare in infants under 2 years (except after a stomach bug).</li>
+              <ul className="space-y-1.5 text-[#7C2D12] text-sm list-disc list-inside leading-relaxed">
+                <li>Rare in infants under 2 years (except after a stomach virus).</li>
                 <li>Digestive symptoms only (gas, frothy acidic diarrhea, cramps).</li>
                 <li><strong>No hives, eczema, or blood in stool.</strong></li>
                 <li>Lactose is vital for infant brain & gut development.</li>
               </ul>
-              <div className="p-2 rounded-xl bg-white border border-[#FED7AA] text-[11px]">
-                <strong>Key Fix:</strong> Lactose-free formula or lactase drops (usually temporary).
+              <div className="p-3.5 rounded-xl bg-white border-2 border-[#FED7AA] space-y-1">
+                <span className="text-xs font-extrabold uppercase text-[#EA580C] block">💡 Recommended Action:</span>
+                <p className="text-sm font-semibold text-[#1C1917] leading-relaxed">
+                  Lactose-free formula or lactase drops (usually temporary post-illness). Never eliminate dairy without pediatric advice.
+                </p>
               </div>
             </div>
 
             {/* CMPA Column */}
-            <div className="p-4 rounded-2xl bg-[#FEF2F2] border-2 border-[#FECACA] space-y-2.5">
-              <div className="flex items-center justify-between border-b border-[#FCA5A5] pb-2">
-                <h4 className="font-serif font-bold text-sm text-[#991B1B] flex items-center gap-1.5">
-                  <ShieldAlert className="w-4 h-4" /> Cow's Milk Protein Allergy
+            <div className="p-5 rounded-2xl bg-[#FEF2F2] border-2 border-[#FECACA] space-y-3">
+              <div className="flex items-center justify-between border-b border-[#FCA5A5] pb-2.5">
+                <h4 className="font-serif font-bold text-base text-[#991B1B] flex items-center gap-2">
+                  <ShieldAlert className="w-5 h-5" /> Cow's Milk Protein Allergy
                 </h4>
-                <span className="px-2 py-0.5 rounded text-[10px] font-black bg-red-100 text-red-800">
-                  Immune System Reaction
+                <span className="px-2.5 py-1 rounded-md text-xs font-black bg-red-100 text-red-800">
+                  Immune Reaction
                 </span>
               </div>
-              <p className="text-[#450A0A]">
+              <p className="text-[#450A0A] text-sm leading-relaxed">
                 <strong>What it is:</strong> Baby's immune system mistakenly attacks the <strong>proteins (casein & whey)</strong> in cow's milk.
               </p>
-              <ul className="space-y-1 text-[#7F1D1D] list-disc list-inside">
+              <ul className="space-y-1.5 text-[#7F1D1D] text-sm list-disc list-inside leading-relaxed">
                 <li>Affects ~2–7% of babies in their first year of life.</li>
-                <li>Causes <strong>blood/mucus streaks in stool</strong>, reflux, crying.</li>
+                <li>Causes <strong>blood/mucus streaks in stool</strong>, severe reflux, crying.</li>
                 <li>Skin signs: <strong>eczema, hives, swollen lips/eyes</strong>.</li>
                 <li>Respiratory signs: wheezing or chronic nasal congestion.</li>
               </ul>
-              <div className="p-2 rounded-xl bg-white border border-[#FECACA] text-[11px]">
-                <strong>Key Fix:</strong> Extensively hydrolyzed formula (broken proteins) or maternal dairy-free diet.
+              <div className="p-3.5 rounded-xl bg-white border-2 border-[#FECACA] space-y-1">
+                <span className="text-xs font-extrabold uppercase text-[#DC2626] block">💡 Recommended Action:</span>
+                <p className="text-sm font-semibold text-[#1C1917] leading-relaxed">
+                  Switch to an Extensively Hydrolyzed Formula (broken protein chains) or maternal dairy elimination if nursing.
+                </p>
               </div>
             </div>
           </div>
@@ -350,59 +366,59 @@ export const LactoseIntoleranceCard: React.FC<LactoseIntoleranceCardProps> = ({
       {/* TAB 3: PEDIATRIC REMEDIES & HOME FIXES */}
       {activeTab === 'remedies' && (
         <div className="space-y-4 animate-fadeIn">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             {/* Remedy 1: Breastfeeding Guidance */}
-            <div className="p-4 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-2">
+            <div className="p-5 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-2.5">
               <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center font-black text-xs">1</span>
-                <h5 className="font-bold text-[#1C1917]">Breastfeeding Solutions</h5>
+                <span className="w-7 h-7 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center font-black text-sm">1</span>
+                <h5 className="font-bold text-base text-[#1C1917]">Breastfeeding Solutions</h5>
               </div>
-              <p className="text-[#44403C] leading-relaxed">
+              <p className="text-[#292524] text-sm sm:text-base leading-relaxed">
                 <strong>Fix Foremilk/Hindmilk Imbalance:</strong> Ensure baby drains one breast completely before switching. Foremilk is sugar-heavy and can cause gassy frothy stools; fatty hindmilk aids digestion.
               </p>
-              <p className="text-[#44403C] leading-relaxed">
+              <p className="text-[#292524] text-sm sm:text-base leading-relaxed">
                 <strong>2-Week Maternal Dairy Elimination:</strong> Cut milk, cheese, butter, and whey for 14 days to observe if fussiness and stool improve.
               </p>
             </div>
 
             {/* Remedy 2: Formula Adjustments */}
-            <div className="p-4 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-2">
+            <div className="p-5 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-2.5">
               <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center font-black text-xs">2</span>
-                <h5 className="font-bold text-[#1C1917]">Formula Adjustments</h5>
+                <span className="w-7 h-7 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center font-black text-sm">2</span>
+                <h5 className="font-bold text-base text-[#1C1917]">Formula Adjustments</h5>
               </div>
-              <p className="text-[#44403C] leading-relaxed">
+              <p className="text-[#292524] text-sm sm:text-base leading-relaxed">
                 <strong>Hydrolyzed vs. Lactose-Free:</strong> Always consult pediatrician before switching. True CMPA requires <em>Extensively Hydrolyzed Formula</em> (broken protein chains), not just lactose-free formula.
               </p>
-              <p className="text-[#44403C] leading-relaxed">
+              <p className="text-[#292524] text-sm sm:text-base leading-relaxed">
                 <strong>Exact Water Ratios:</strong> Never over-concentrate or dilute formula; improper mixing exacerbates intestinal osmolarity and diarrhea.
               </p>
             </div>
 
             {/* Remedy 3: Tummy Comfort */}
-            <div className="p-4 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-2">
+            <div className="p-5 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-2.5">
               <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-xs">3</span>
-                <h5 className="font-bold text-[#1C1917]">Tummy & Gas Relief</h5>
+                <span className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-sm">3</span>
+                <h5 className="font-bold text-base text-[#1C1917]">Tummy & Gas Relief</h5>
               </div>
-              <p className="text-[#44403C] leading-relaxed">
+              <p className="text-[#292524] text-sm sm:text-base leading-relaxed">
                 <strong>Clockwise Massage & Bicycles:</strong> Gently massage tummy in clockwise circles (following colon path) and do bicycle leg pumps to release trapped gas pockets.
               </p>
-              <p className="text-[#44403C] leading-relaxed">
+              <p className="text-[#292524] text-sm sm:text-base leading-relaxed">
                 <strong>20-Minute Upright Hold:</strong> Keep baby upright against your shoulder after feeds to ease gastric pressure.
               </p>
             </div>
 
             {/* Remedy 4: Acidic Diaper Rash Protection */}
-            <div className="p-4 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-2">
+            <div className="p-5 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-2.5">
               <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-black text-xs">4</span>
-                <h5 className="font-bold text-[#1C1917]">Diaper Rash Shield</h5>
+                <span className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-black text-sm">4</span>
+                <h5 className="font-bold text-base text-[#1C1917]">Diaper Rash Shield</h5>
               </div>
-              <p className="text-[#44403C] leading-relaxed">
+              <p className="text-[#292524] text-sm sm:text-base leading-relaxed">
                 <strong>40% Zinc Oxide Barrier:</strong> Acidic diarrhea quickly burns delicate infant skin. Apply a thick layer like cake frosting at every diaper change.
               </p>
-              <p className="text-[#44403C] leading-relaxed">
+              <p className="text-[#292524] text-sm sm:text-base leading-relaxed">
                 <strong>Water Wipe Cleansing:</strong> Use warm water and soft cotton cloths rather than alcohol/fragrance wipes during active diarrhea flare-ups.
               </p>
             </div>
@@ -413,13 +429,13 @@ export const LactoseIntoleranceCard: React.FC<LactoseIntoleranceCardProps> = ({
       {/* TAB 4: INFANT FORMULA MATRIX */}
       {activeTab === 'formulas' && (
         <div className="space-y-4 animate-fadeIn">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
             <div className="p-4 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-2">
               <span className="px-2 py-0.5 rounded text-[10px] font-black bg-blue-100 text-blue-800">
                 1. Standard Cow's Milk
               </span>
-              <h5 className="font-bold text-[#1C1917]">Standard Formula (e.g. Enfamil NeuroPro, Similac 360)</h5>
-              <p className="text-[#57534E] leading-relaxed">
+              <h5 className="font-bold text-sm text-[#1C1917]">Standard Formula (e.g. Enfamil, Similac)</h5>
+              <p className="text-xs text-[#57534E] leading-relaxed">
                 Contains intact cow milk proteins (casein/whey) and full lactose. Optimal for 90%+ of infants with healthy digestion.
               </p>
             </div>
@@ -428,8 +444,8 @@ export const LactoseIntoleranceCard: React.FC<LactoseIntoleranceCardProps> = ({
               <span className="px-2 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-800">
                 2. Extensively Hydrolyzed
               </span>
-              <h5 className="font-bold text-[#1C1917]">Hypoallergenic (e.g. Nutramigen, Alimentum)</h5>
-              <p className="text-[#57534E] leading-relaxed">
+              <h5 className="font-bold text-sm text-[#1C1917]">Hypoallergenic (e.g. Nutramigen, Alimentum)</h5>
+              <p className="text-xs text-[#57534E] leading-relaxed">
                 Proteins are broken down into tiny peptides that the immune system does not recognize. **First-line choice for CMPA and severe milk allergy.**
               </p>
             </div>
@@ -438,8 +454,8 @@ export const LactoseIntoleranceCard: React.FC<LactoseIntoleranceCardProps> = ({
               <span className="px-2 py-0.5 rounded text-[10px] font-black bg-red-100 text-red-800">
                 3. Amino Acid Based
               </span>
-              <h5 className="font-bold text-[#1C1917]">Elemental (e.g. Neocate, EleCare, PurAmino)</h5>
-              <p className="text-[#57534E] leading-relaxed">
+              <h5 className="font-bold text-sm text-[#1C1917]">Elemental (e.g. Neocate, EleCare)</h5>
+              <p className="text-xs text-[#57534E] leading-relaxed">
                 100% free amino acids. Reserved for severe multi-food allergies, failure to thrive, or when hydrolyzed formulas fail.
               </p>
             </div>
@@ -448,10 +464,10 @@ export const LactoseIntoleranceCard: React.FC<LactoseIntoleranceCardProps> = ({
       )}
 
       {/* Bottom Bar: Action Trigger to AI Doctor */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#FFFBF7] border border-[#E7DDD5] text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] text-xs">
         <div className="flex items-center gap-2">
           <Info className="w-4 h-4 text-[#EA580C] shrink-0" />
-          <span className="text-[#57534E]">
+          <span className="text-[#57534E] text-xs sm:text-sm">
             Selected: <strong className="text-[#1C1917]">{selectedSymptoms.length} symptoms</strong> for {babyName}
           </span>
         </div>
@@ -460,9 +476,9 @@ export const LactoseIntoleranceCard: React.FC<LactoseIntoleranceCardProps> = ({
           <button
             type="button"
             onClick={handleAskDoctor}
-            className="px-4 py-2.5 rounded-xl bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-xs shadow-md shadow-[#EA580C]/25 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
+            className="px-4 py-2.5 rounded-xl bg-[#EA580C] hover:bg-[#C2410C] text-white font-extrabold text-xs sm:text-sm shadow-md shadow-[#EA580C]/25 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+            <Sparkles className="w-4 h-4 text-amber-200" />
             <span>Ask AI Doctor to Evaluate Lactose & Dairy Symptoms</span>
           </button>
         )}

@@ -387,40 +387,40 @@ I'm ready for your new questions regarding sleep, infant health, feeding, and ba
                   }`}
                 >
                   {isUser ? (
-                    <p className="text-sm font-medium whitespace-pre-wrap leading-relaxed">
+                    <p className="text-base font-semibold whitespace-pre-wrap leading-relaxed">
                       {msg.content}
                     </p>
                   ) : (
-                    <div className="text-sm leading-relaxed text-[#1C1917] space-y-2 prose prose-stone max-w-none">
+                    <div className="text-base leading-relaxed text-[#1C1917] space-y-3 prose prose-stone max-w-none">
                       <ReactMarkdown
                         components={{
                           h3: ({ children }) => (
-                            <h3 className="font-serif text-base font-bold text-[#1C1917] mt-1 mb-2">
+                            <h3 className="font-serif text-lg font-bold text-[#1C1917] mt-3 mb-2 pb-1 border-b border-[#E7DDD5]">
                               {children}
                             </h3>
                           ),
                           h4: ({ children }) => (
-                            <h4 className="font-bold text-sm text-[#1C1917] mt-2 mb-1">
+                            <h4 className="font-bold text-base text-[#1C1917] mt-3 mb-1.5 flex items-center gap-1.5">
                               {children}
                             </h4>
                           ),
                           p: ({ children }) => (
-                            <p className="text-sm text-[#1C1917] leading-relaxed mb-2 last:mb-0">
+                            <p className="text-base text-[#1C1917] leading-relaxed mb-2.5 last:mb-0">
                               {children}
                             </p>
                           ),
                           ul: ({ children }) => (
-                            <ul className="list-disc pl-5 space-y-1 my-2 text-sm text-[#1C1917]">
+                            <ul className="list-disc pl-6 space-y-2 my-2.5 text-base text-[#1C1917]">
                               {children}
                             </ul>
                           ),
                           ol: ({ children }) => (
-                            <ol className="list-decimal pl-5 space-y-1 my-2 text-sm text-[#1C1917]">
+                            <ol className="list-decimal pl-6 space-y-2 my-2.5 text-base text-[#1C1917]">
                               {children}
                             </ol>
                           ),
                           li: ({ children }) => (
-                            <li className="text-sm text-[#1C1917]">
+                            <li className="text-base text-[#1C1917] leading-relaxed">
                               {children}
                             </li>
                           ),
@@ -430,7 +430,7 @@ I'm ready for your new questions regarding sleep, infant health, feeding, and ba
                             </strong>
                           ),
                           blockquote: ({ children }) => (
-                            <blockquote className="border-l-4 border-[#FF5A5F] pl-3 py-1 my-2 bg-[#FFF1F2] rounded-r-lg text-xs font-semibold text-[#9F1239]">
+                            <blockquote className="border-l-4 border-[#FF5A5F] pl-4 py-2.5 my-3 bg-[#FFF1F2] rounded-r-2xl text-base font-semibold text-[#9F1239] leading-relaxed">
                               {children}
                             </blockquote>
                           )
@@ -440,21 +440,21 @@ I'm ready for your new questions regarding sleep, infant health, feeding, and ba
                       </ReactMarkdown>
 
                       {/* Copy action */}
-                      <div className="pt-2 border-t border-[#F0E6DD]/60 flex items-center justify-between text-[10px] text-[#57534E]">
-                        <span>{msg.timestamp}</span>
+                      <div className="pt-2.5 border-t border-[#F0E6DD]/80 flex items-center justify-between text-xs text-[#57534E]">
+                        <span className="font-medium">{msg.timestamp}</span>
                         <button
                           onClick={() => handleCopy(msg.content, msg.id)}
-                          className="flex items-center gap-1 text-[#57534E] hover:text-[#1C1917] font-bold transition-colors cursor-pointer"
+                          className="flex items-center gap-1.5 text-[#57534E] hover:text-[#1C1917] font-bold transition-colors cursor-pointer py-1 px-2 rounded-lg hover:bg-[#F5EFEB]"
                         >
                           {copiedId === msg.id ? (
                             <>
-                              <Check className="w-3 h-3 text-[#22C55E]" />
-                              <span className="text-[#22C55E]">Copied</span>
+                              <Check className="w-3.5 h-3.5 text-[#22C55E]" />
+                              <span className="text-[#22C55E]">Copied Plan</span>
                             </>
                           ) : (
                             <>
-                              <Copy className="w-3 h-3" />
-                              <span>Copy Answer</span>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>Copy Plan</span>
                             </>
                           )}
                         </button>
