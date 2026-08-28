@@ -1,0 +1,146 @@
+{
+  "entities": {
+    "SleepLog": {
+      "title": "SleepLog",
+      "description": "Log entry recording an infant nap or night sleep session",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "type": { "type": "string", "enum": ["night", "nap"] },
+        "startTime": { "type": "string", "maxLength": 32 },
+        "endTime": { "type": "string", "maxLength": 32 },
+        "durationMinutes": { "type": "number" },
+        "quality": { "type": "string", "enum": ["peaceful", "restless", "broken"] },
+        "moodUponWaking": { "type": "string", "enum": ["happy", "peaceful", "fussy", "restless", "crying"] },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "loggedBy": { "type": "string", "maxLength": 64 },
+        "caregiverAvatar": { "type": "string", "maxLength": 16 },
+        "date": { "type": "string", "maxLength": 32 },
+        "userId": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["id", "type", "startTime", "endTime", "durationMinutes", "loggedBy", "date"]
+    },
+    "FeedLog": {
+      "title": "FeedLog",
+      "description": "Log entry recording an infant feeding session (nursing, formula, solids, pumped milk)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "feedType": { "type": "string", "enum": ["nursing", "formula", "pumped_milk", "solids"] },
+        "time": { "type": "string", "maxLength": 32 },
+        "durationMinutes": { "type": "number" },
+        "breastSide": { "type": "string", "enum": ["left", "right", "both"] },
+        "amountMl": { "type": "number" },
+        "amountOz": { "type": "number" },
+        "foodDescription": { "type": "string", "maxLength": 500 },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "loggedBy": { "type": "string", "maxLength": 64 },
+        "caregiverAvatar": { "type": "string", "maxLength": 16 },
+        "date": { "type": "string", "maxLength": 32 },
+        "userId": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["id", "feedType", "time", "loggedBy"]
+    },
+    "DiaperLog": {
+      "title": "DiaperLog",
+      "description": "Log entry recording an infant wet or dirty diaper change and stool triage",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "diaperType": { "type": "string", "enum": ["wet", "dirty", "both"] },
+        "time": { "type": "string", "maxLength": 32 },
+        "hasRashCream": { "type": "boolean" },
+        "stoolColor": { "type": "string", "maxLength": 64 },
+        "stoolConsistency": { "type": "string", "maxLength": 64 },
+        "leakage": { "type": "boolean" },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "loggedBy": { "type": "string", "maxLength": 64 },
+        "caregiverAvatar": { "type": "string", "maxLength": 16 },
+        "date": { "type": "string", "maxLength": 32 },
+        "userId": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["id", "diaperType", "time", "loggedBy"]
+    },
+    "ActivityLog": {
+      "title": "ActivityLog",
+      "description": "Log entry recording tummy time, bath, play, medicine, or custom note",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "activityType": { "type": "string", "enum": ["tummy_time", "bath", "play", "medicine", "custom_note"] },
+        "title": { "type": "string", "maxLength": 128 },
+        "time": { "type": "string", "maxLength": 32 },
+        "durationMinutes": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "loggedBy": { "type": "string", "maxLength": 64 },
+        "caregiverAvatar": { "type": "string", "maxLength": 16 },
+        "date": { "type": "string", "maxLength": 32 },
+        "userId": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["id", "activityType", "title", "time", "loggedBy"]
+    },
+    "VaccineRecord": {
+      "title": "VaccineRecord",
+      "description": "Log entry recording infant vaccination administration, lot number, clinic, and post-shot reactions",
+      "type": "object",
+      "properties": {
+        "vaccineId": { "type": "string", "maxLength": 64 },
+        "isCompleted": { "type": "boolean" },
+        "completedDate": { "type": "string", "maxLength": 32 },
+        "administeredBy": { "type": "string", "maxLength": 128 },
+        "lotNumber": { "type": "string", "maxLength": 64 },
+        "site": { "type": "string", "enum": ["left_thigh", "right_thigh", "left_arm", "right_arm", "oral"] },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "updatedAt": { "type": "string", "maxLength": 32 }
+      },
+      "required": ["vaccineId", "isCompleted"]
+    },
+    "BabyProfile": {
+      "title": "BabyProfile",
+      "description": "Baby profile containing age, wake times, target bedtime, and sleep goals",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 64 },
+        "ageMonths": { "type": "number" },
+        "birthDate": { "type": "string", "maxLength": 32 },
+        "gender": { "type": "string", "enum": ["boy", "girl", "prefer_not_to_say"] },
+        "wakeTime": { "type": "string", "maxLength": 32 },
+        "targetBedtime": { "type": "string", "maxLength": 32 },
+        "sleepGoal": { "type": "string", "maxLength": 256 },
+        "userId": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["name", "ageMonths", "birthDate"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/sleep_logs/{logId}": {
+      "schema": "SleepLog",
+      "description": "Infant sleep and nap tracking logs partitioned by user"
+    },
+    "/users/{userId}/feed_logs/{logId}": {
+      "schema": "FeedLog",
+      "description": "Infant feeding, nursing, formula, and solid logs partitioned by user"
+    },
+    "/users/{userId}/diaper_logs/{logId}": {
+      "schema": "DiaperLog",
+      "description": "Infant wet/dirty diaper and stool triage logs partitioned by user"
+    },
+    "/users/{userId}/activity_logs/{logId}": {
+      "schema": "ActivityLog",
+      "description": "Infant tummy time, play, bath, and medicine logs partitioned by user"
+    },
+    "/users/{userId}/vaccine_records/{vaccineId}": {
+      "schema": "VaccineRecord",
+      "description": "Infant immunization completion records partitioned by user"
+    },
+    "/users/{userId}/baby_profile/current": {
+      "schema": "BabyProfile",
+      "description": "Current active baby profile and schedule configuration"
+    },
+    "/public_stats/summary": {
+      "schema": "object",
+      "description": "Global anonymous aggregate stats for total tracked naps and feedings"
+    }
+  }
+}

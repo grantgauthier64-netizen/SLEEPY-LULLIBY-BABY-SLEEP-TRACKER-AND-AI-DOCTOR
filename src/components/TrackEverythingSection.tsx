@@ -8,16 +8,18 @@ import {
 import confetti from 'canvas-confetti';
 import { 
   SleepLog, FeedLog, DiaperLog, CustomActivityLog, 
-  BabyMood, UnifiedDailyEvent 
+  BabyMood, UnifiedDailyEvent, BabyProfile 
 } from '../types';
 import { PoopVisualGuideCard } from './PoopVisualGuideCard';
 import { LactoseIntoleranceCard } from './LactoseIntoleranceCard';
+import { generatePediatricPdf } from '../utils/generatePediatricPdf';
 
 interface TrackEverythingSectionProps {
   logs: SleepLog[];
   feedLogs: FeedLog[];
   diaperLogs: DiaperLog[];
   activityLogs: CustomActivityLog[];
+  babyProfile?: BabyProfile;
   onAddSleepLog: (newLog: SleepLog) => void;
   onAddFeedLog: (newLog: FeedLog) => void;
   onAddDiaperLog: (newLog: DiaperLog) => void;
@@ -27,6 +29,7 @@ interface TrackEverythingSectionProps {
   onDeleteDiaperLog: (id: string) => void;
   onDeleteActivityLog: (id: string) => void;
   onOpenLoggerModal: (tab?: 'sleep' | 'feed' | 'diaper' | 'activity' | 'timer') => void;
+  onDownloadPdf?: () => void;
 }
 
 export const TrackEverythingSection: React.FC<TrackEverythingSectionProps> = ({
@@ -34,6 +37,7 @@ export const TrackEverythingSection: React.FC<TrackEverythingSectionProps> = ({
   feedLogs,
   diaperLogs,
   activityLogs,
+  babyProfile,
   onAddSleepLog,
   onAddFeedLog,
   onAddDiaperLog,
@@ -43,6 +47,7 @@ export const TrackEverythingSection: React.FC<TrackEverythingSectionProps> = ({
   onDeleteDiaperLog,
   onDeleteActivityLog,
   onOpenLoggerModal,
+  onDownloadPdf,
 }) => {
   const [filterType, setFilterType] = useState<'all' | 'sleep' | 'feed' | 'diaper' | 'activity'>('all');
   const [showPoopCard, setShowPoopCard] = useState<boolean>(false);
@@ -526,7 +531,38 @@ export const TrackEverythingSection: React.FC<TrackEverythingSectionProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+            <button
+              onClick={() => {
+                if (onDownloadPdf) {
+                  onDownloadPdf();
+                } else {
+                  generatePediatricPdf({
+                    babyProfile: babyProfile || {
+                      name: 'Maya',
+                      ageMonths: 5,
+                      birthDate: '2026-03-15',
+                      gender: 'girl',
+                      wakeTime: '07:00',
+                      targetBedtime: '19:30',
+                      sleepGoal: 'Gentle routine'
+                    },
+                    sleepLogs: logs,
+                    feedLogs: feedLogs,
+                    diaperLogs: diaperLogs,
+                    activityLogs: activityLogs
+                  });
+                }
+                confetti({ particleCount: 30, spread: 45 });
+              }}
+              id="download-pediatric-pdf-btn"
+              className="px-4 py-2.5 rounded-full text-xs font-extrabold bg-[#059669] hover:bg-[#047857] text-white shadow-md shadow-[#059669]/30 transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+              title="Generate downloadable clinical PDF for pediatrician visit"
+            >
+              <FileText className="w-4 h-4" />
+              <span>Download Doctor PDF</span>
+            </button>
+
             <button
               onClick={() => setShowPhotoTriage(!showPhotoTriage)}
               className="px-4 py-2.5 rounded-full text-xs font-extrabold bg-white border-2 border-[#D6C7BC] hover:border-[#0284C7] hover:text-[#0284C7] text-[#1C1917] transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
@@ -537,10 +573,10 @@ export const TrackEverythingSection: React.FC<TrackEverythingSectionProps> = ({
 
             <button
               onClick={handleCopyPediatricianReport}
-              className="px-5 py-2.5 rounded-full text-xs font-extrabold bg-[#FF5A5F] text-white hover:bg-[#FF4147] shadow-md shadow-[#FF5A5F]/30 transition-all cursor-pointer flex items-center gap-2 active:scale-95"
+              className="px-4 sm:px-5 py-2.5 rounded-full text-xs font-extrabold bg-[#FF5A5F] text-white hover:bg-[#FF4147] shadow-md shadow-[#FF5A5F]/30 transition-all cursor-pointer flex items-center gap-2 active:scale-95"
             >
               {copiedSummary ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              <span>{copiedSummary ? '✓ Copied to Clipboard!' : 'Copy Summary for Doctor'}</span>
+              <span>{copiedSummary ? '✓ Copied!' : 'Copy Text Summary'}</span>
             </button>
           </div>
         </div>

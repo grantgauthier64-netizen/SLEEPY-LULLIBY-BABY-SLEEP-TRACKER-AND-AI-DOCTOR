@@ -1,0 +1,119 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Global helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Validation helpers
+    function isValidSleepLog(data) {
+      return data.id is string && data.id.size() <= 128 &&
+        data.type in ['night', 'nap'] &&
+        data.startTime is string && data.startTime.size() <= 32 &&
+        data.endTime is string && data.endTime.size() <= 32 &&
+        data.durationMinutes is number && data.durationMinutes >= 0 && data.durationMinutes <= 1440 &&
+        data.loggedBy is string && data.loggedBy.size() <= 64;
+    }
+
+    function isValidFeedLog(data) {
+      return data.id is string && data.id.size() <= 128 &&
+        data.feedType in ['nursing', 'formula', 'pumped_milk', 'solids'] &&
+        data.time is string && data.time.size() <= 32 &&
+        data.loggedBy is string && data.loggedBy.size() <= 64;
+    }
+
+    function isValidDiaperLog(data) {
+      return data.id is string && data.id.size() <= 128 &&
+        data.diaperType in ['wet', 'dirty', 'both'] &&
+        data.time is string && data.time.size() <= 32 &&
+        data.loggedBy is string && data.loggedBy.size() <= 64;
+    }
+
+    function isValidActivityLog(data) {
+      return data.id is string && data.id.size() <= 128 &&
+        data.activityType in ['tummy_time', 'bath', 'play', 'medicine', 'custom_note'] &&
+        data.title is string && data.title.size() <= 128 &&
+        data.time is string && data.time.size() <= 32 &&
+        data.loggedBy is string && data.loggedBy.size() <= 64;
+    }
+
+    function isValidVaccineRecord(data) {
+      return data.vaccineId is string && data.vaccineId.size() <= 64 &&
+        data.isCompleted is bool;
+    }
+
+    function isValidBabyProfile(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 64 &&
+        data.ageMonths is number && data.ageMonths >= 0 && data.ageMonths <= 60 &&
+        data.birthDate is string && data.birthDate.size() <= 32;
+    }
+
+    // User data match blocks
+    match /users/{userId} {
+      allow get, list: if isOwner(userId);
+      allow create, update, delete: if isOwner(userId);
+
+      match /sleep_logs/{logId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(logId) && isValidSleepLog(request.resource.data);
+        allow update: if isOwner(userId) && isValidId(logId) && isValidSleepLog(request.resource.data);
+        allow delete: if isOwner(userId) && isValidId(logId);
+      }
+
+      match /feed_logs/{logId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(logId) && isValidFeedLog(request.resource.data);
+        allow update: if isOwner(userId) && isValidId(logId) && isValidFeedLog(request.resource.data);
+        allow delete: if isOwner(userId) && isValidId(logId);
+      }
+
+      match /diaper_logs/{logId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(logId) && isValidDiaperLog(request.resource.data);
+        allow update: if isOwner(userId) && isValidId(logId) && isValidDiaperLog(request.resource.data);
+        allow delete: if isOwner(userId) && isValidId(logId);
+      }
+
+      match /activity_logs/{logId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(logId) && isValidActivityLog(request.resource.data);
+        allow update: if isOwner(userId) && isValidId(logId) && isValidActivityLog(request.resource.data);
+        allow delete: if isOwner(userId) && isValidId(logId);
+      }
+
+      match /vaccine_records/{vaccineId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(vaccineId) && isValidVaccineRecord(request.resource.data);
+        allow update: if isOwner(userId) && isValidId(vaccineId) && isValidVaccineRecord(request.resource.data);
+        allow delete: if isOwner(userId) && isValidId(vaccineId);
+      }
+
+      match /baby_profile/{docId} {
+        allow get: if isOwner(userId);
+        allow create, update: if isOwner(userId) && isValidBabyProfile(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+    }
+
+    // Public aggregate stats (read-only for client)
+    match /public_stats/{statId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

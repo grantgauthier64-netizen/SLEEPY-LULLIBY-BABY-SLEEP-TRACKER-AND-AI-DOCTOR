@@ -50,18 +50,21 @@ export const Navbar: React.FC<NavbarProps> = ({
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         <div className="flex items-center justify-between h-20">
-          {/* Logo & Brand matching design */}
+          {/* Logo & Brand matching requested name */}
           <a
             href="#"
             id="brand-logo-btn"
             className="flex items-center gap-2.5 group text-left cursor-pointer"
           >
-            <div className="w-9 h-9 bg-[#FF5A5F] rounded-full flex items-center justify-center shadow-md shadow-[#FF5A5F]/30 group-hover:scale-105 transition-transform">
-              <div className="w-4 h-4 bg-white rounded-full translate-x-1 -translate-y-1 shadow-inner"></div>
+            <div className="w-10 h-10 bg-[#FF5A5F] rounded-2xl flex items-center justify-center shadow-md shadow-[#FF5A5F]/30 group-hover:scale-105 transition-transform shrink-0">
+              <Moon className="w-5 h-5 text-white fill-white" />
             </div>
-            <div>
-              <span className="text-xl font-bold tracking-tight text-[#1C1917]">
-                Sleepy Lullaby Dreams
+            <div className="flex flex-col">
+              <span className="text-base sm:text-lg font-bold tracking-tight text-[#1C1917] leading-tight">
+                Baby AI Pediatrician <span className="text-[#FF5A5F]">&</span> Sleep Tracker
+              </span>
+              <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-[#78716C]">
+                For New Parents
               </span>
             </div>
           </a>
@@ -90,7 +93,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="hover:text-[#7C3AED] transition-colors cursor-pointer flex items-center gap-1.5 text-[#5B21B6] font-bold"
             >
               <Bot className="w-4 h-4 text-[#7C3AED]" />
-              <span>AI Baby Doctor</span>
+              <span>AI Doctor</span>
+              <span className="px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-[#EDE9FE] text-[#6D28D9] border border-[#DDD6FE] uppercase">Ada+GPT</span>
             </button>
             <button
               id="nav-track-btn"
@@ -216,10 +220,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               setMobileMenuOpen(false);
               scrollToSection('on-site-ai-doctor');
             }}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-base font-bold text-[#5B21B6] bg-[#EDE9FE]/70 hover:bg-[#EDE9FE] text-left border border-[#DDD6FE]"
+            className="w-full flex items-center justify-between px-4 py-3 rounded-2xl text-base font-bold text-[#5B21B6] bg-[#EDE9FE]/80 hover:bg-[#EDE9FE] text-left border-2 border-[#DDD6FE]"
           >
-            <Bot className="w-5 h-5 text-[#7C3AED]" />
-            On-Site AI Baby Doctor
+            <div className="flex items-center gap-3">
+              <Bot className="w-5 h-5 text-[#7C3AED]" />
+              <span>AI Baby Doctor</span>
+            </div>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#7C3AED] text-white uppercase">Ada + ChatGPT</span>
           </button>
           <button
             onClick={() => scrollToSection('track-everything')}

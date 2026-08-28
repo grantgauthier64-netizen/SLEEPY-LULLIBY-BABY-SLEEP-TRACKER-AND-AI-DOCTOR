@@ -97,10 +97,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <button
                 id="hero-ai-agent-cta"
                 onClick={onOpenAIAgent}
-                className="w-full sm:w-auto px-6 py-3.5 bg-[#EDE9FE] hover:bg-[#DDD6FE] border-2 border-[#8B5CF6] text-[#5B21B6] rounded-full font-extrabold shadow-sm active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2 text-sm sm:text-base"
+                className="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-[#EDE9FE] to-[#F3E8FF] hover:from-[#DDD6FE] hover:to-[#E9D5FF] border-2 border-[#8B5CF6] text-[#5B21B6] rounded-full font-extrabold shadow-sm active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2 text-sm sm:text-base"
               >
                 <Sparkles className="w-4 h-4 text-[#7C3AED]" />
-                <span>Ask AI Baby Doctor</span>
+                <span>AI Doctor</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#7C3AED] text-white">Ada + GPT</span>
               </button>
 
               <button

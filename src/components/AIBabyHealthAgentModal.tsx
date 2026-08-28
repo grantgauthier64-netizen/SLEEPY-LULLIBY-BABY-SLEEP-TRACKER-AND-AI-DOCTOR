@@ -16,10 +16,19 @@ import {
   ArrowRight,
   AlertCircle,
   Stethoscope,
-  Info
+  Info,
+  Activity,
+  Zap,
+  FileText,
+  Maximize2,
+  Minimize2,
+  ShieldCheck,
+  CheckSquare,
+  Clock
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { BabyProfile } from '../types';
+import { BabyProfile, SleepLog, FeedLog, DiaperLog, CustomActivityLog } from '../types';
+import { generatePediatricPdf } from '../utils/generatePediatricPdf';
 
 interface Message {
   id: string;
@@ -33,6 +42,10 @@ interface AIBabyHealthAgentModalProps {
   isOpen: boolean;
   onClose: () => void;
   babyProfile?: BabyProfile;
+  sleepLogs?: SleepLog[];
+  feedLogs?: FeedLog[];
+  diaperLogs?: DiaperLog[];
+  activityLogs?: CustomActivityLog[];
 }
 
 const PRESET_TOPICS = [
@@ -56,14 +69,15 @@ const PRESET_TOPICS = [
     label: 'Spit-Up & Poop Decoder',
     icon: Milk,
     color: 'bg-[#FFEDD5] text-[#9A3412] border-[#EA580C]/30',
-    headerSummary: 'Poop color & texture decoder (Diarrhea, Runny, Pasty, Soft, Firm) and curdled formula spit-up triage',
-    defaultInquiry: 'Provide a complete pediatric breakdown of baby poop colors (Yellow, Green, Brown, Red, White, Black) and stool texture types (Diarrhea, Runny seedy, Pasty, Soft, Firm/Hard pellets), plus why formula spit-up curdles.',
+    headerSummary: 'Undigested solid foods in stool, poop color/texture decoder, and sour curdled milk spit-up triage',
+    defaultInquiry: 'Provide a complete pediatric breakdown of undigested food pieces in baby poop (causes, what to do, how to fix food prep), baby throwing up sour curdled milk (causes, what to do, how to fix), and stool colors/textures.',
     questions: [
+      "Why is there undigested food (carrots, corn, peas, bananas) in baby's poop, and how to fix food prep?",
+      "Why does baby throw up sour-smelling curdled milk, and what is the step-by-step fix?",
       "What do different baby poop colors & textures (diarrhea, pasty, runny, soft, firm) mean?",
-      "Why does baby spit up curd-like cottage cheese after formula?",
+      "Why does formula spit-up curdle like cottage cheese 30 minutes after feeds?",
       "Is watery diarrhea vs runny seedy breastfed poop different?",
-      "How to treat firm pellet constipation in infants?",
-      "Is army-green or dark green poop normal for formula-fed babies?"
+      "How to treat firm pellet constipation in infants?"
     ]
   },
   {
@@ -129,18 +143,24 @@ const PRESET_TOPICS = [
 export const AIBabyHealthAgentModal: React.FC<AIBabyHealthAgentModalProps> = ({
   isOpen,
   onClose,
-  babyProfile
+  babyProfile,
+  sleepLogs = [],
+  feedLogs = [],
+  diaperLogs = [],
+  activityLogs = []
 }) => {
+  const [selectedEngine, setSelectedEngine] = useState<'dr_lullaby' | 'ada_health' | 'chatgpt_health'>('dr_lullaby');
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome-1',
       role: 'assistant',
       content: `### 👋 Hello! I'm Dr. Lullaby & Nurse Daisy
-I'm your **24/7 AI Pediatric Sleep & Infant Health Consultant**, powered by clinical pediatric best practices and AAP (American Academy of Pediatrics) guidelines.
+Integrated with **Ada Health Pediatric Triage** & **ChatGPT Health Assistant** for clinical pediatric best practices and AAP (American Academy of Pediatrics) guidelines.
 
 ${babyProfile?.name ? `I see you're caring for **${babyProfile.name}** (${babyProfile.ageMonths} months old)! I'll tailor my answers directly to their age and schedule.` : "I can help you with personalized sleep schedules, illness & fever advice, feeding guidance, soothing techniques, and developmental milestones."}
 
-**How can I assist you and your baby today?** Feel free to choose a quick topic below or type any question!`,
+**How can I assist you and your baby today?** Choose a clinical intelligence engine or topic below, or type any question!`,
       timestamp: 'Just now',
       category: 'general'
     }
@@ -150,6 +170,16 @@ ${babyProfile?.name ? `I see you're caring for **${babyProfile.name}** (${babyPr
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState<'spitup_poop' | 'sleep' | 'health' | 'feeding' | 'milestones'>('spitup_poop');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [fontSize, setFontSize] = useState<'normal' | 'large' | 'xlarge'>('large');
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const [checkedActions, setCheckedActions] = useState<Record<string, boolean>>({});
+
+  const toggleActionItem = (id: string) => {
+    setCheckedActions(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -203,7 +233,8 @@ ${babyProfile?.name ? `I see you're caring for **${babyProfile.name}** (${babyPr
           babyProfile: babyProfile || {
             name: 'Baby',
             ageMonths: 5
-          }
+          },
+          engine: selectedEngine
         })
       });
 
@@ -272,56 +303,209 @@ I'm ready for your new questions regarding sleep, infant health, feeding, and ba
     >
       <div 
         id="ai-baby-health-agent-dialog"
-        className="bg-[#FFFBF7] rounded-[32px] border-2 border-[#E7DDD5] shadow-2xl max-w-3xl w-full h-[92vh] max-h-[850px] flex flex-col overflow-hidden my-auto"
+        className={`bg-[#FFFBF7] rounded-[32px] border-2 border-[#E7DDD5] shadow-2xl w-full h-[94vh] flex flex-col overflow-hidden my-auto transition-all duration-300 ${
+          isExpanded ? 'max-w-6xl' : 'max-w-4xl'
+        }`}
       >
         {/* Header */}
-        <div className="p-4 sm:px-6 bg-white border-b border-[#F0E6DD] flex items-center justify-between gap-4 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="w-11 h-11 rounded-2xl bg-[#FFE4E6] border-2 border-[#FECDD3] flex items-center justify-center shadow-xs">
-                <Bot className="w-6 h-6 text-[#FF5A5F]" />
+        <div className="p-4 sm:px-6 bg-white border-b border-[#F0E6DD] space-y-3 shrink-0">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="w-11 h-11 rounded-2xl bg-[#FFE4E6] border-2 border-[#FECDD3] flex items-center justify-center shadow-xs">
+                  <Bot className="w-6 h-6 text-[#FF5A5F]" />
+                </div>
+                <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-[#22C55E] border-2 border-white rounded-full" title="Online and Ready" />
               </div>
-              <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-[#22C55E] border-2 border-white rounded-full" title="Online and Ready" />
+
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 id="ai-agent-modal-title" className="font-serif text-lg sm:text-xl font-bold text-[#1C1917]">
+                    24/7 AI Pediatric & Health Agent
+                  </h2>
+                  <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#EDE9FE] text-[#5B21B6] border border-[#DDD6FE]">
+                    <Sparkles className="w-3 h-3" />
+                    Multi-Model
+                  </span>
+                  {isExpanded && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#DCFCE7] text-[#166534] border border-[#BBF7D0]">
+                      Expanded View
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-[#57534E] font-medium flex items-center gap-2">
+                  <span>AAP Guidelines • Ada Triage • GPT</span>
+                  {babyProfile?.name && (
+                    <>
+                      <span>•</span>
+                      <span className="text-[#FF5A5F] font-bold">Patient: {babyProfile.name} ({babyProfile.ageMonths}m)</span>
+                    </>
+                  )}
+                </p>
+              </div>
             </div>
 
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 id="ai-agent-modal-title" className="font-serif text-lg sm:text-xl font-bold text-[#1C1917]">
-                  Lullaby AI • Pediatric & Health Agent
-                </h2>
-                <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#EDE9FE] text-[#5B21B6] border border-[#DDD6FE]">
-                  <Sparkles className="w-3 h-3" />
-                  Gemini 3.7 AI
-                </span>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {/* Expand Toggle */}
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                  isExpanded
+                    ? 'bg-[#1C1917] text-white border-[#1C1917]'
+                    : 'bg-white text-[#1C1917] border-[#D6C7BC] hover:bg-[#F5EFEB]'
+                }`}
+                title={isExpanded ? "Restore Modal Size" : "Expand to Extra Wide Modal"}
+              >
+                {isExpanded ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+                <span className="hidden sm:inline">{isExpanded ? 'Normal' : 'Expand'}</span>
+              </button>
+
+              {/* Font Size Zoom Controller */}
+              <div className="flex items-center bg-white rounded-xl border border-[#D6C7BC] p-0.5 text-xs font-bold">
+                <button
+                  onClick={() => setFontSize('normal')}
+                  className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                    fontSize === 'normal' ? 'bg-[#FF5A5F] text-white' : 'text-[#57534E] hover:text-[#1C1917]'
+                  }`}
+                  title="Normal Text Size"
+                >
+                  A
+                </button>
+                <button
+                  onClick={() => setFontSize('large')}
+                  className={`px-2.5 py-1 rounded-lg text-sm transition-all cursor-pointer ${
+                    fontSize === 'large' ? 'bg-[#FF5A5F] text-white' : 'text-[#57534E] hover:text-[#1C1917]'
+                  }`}
+                  title="Large Text Size"
+                >
+                  A+
+                </button>
+                <button
+                  onClick={() => setFontSize('xlarge')}
+                  className={`px-2.5 py-1 rounded-lg text-base transition-all cursor-pointer ${
+                    fontSize === 'xlarge' ? 'bg-[#FF5A5F] text-white' : 'text-[#57534E] hover:text-[#1C1917]'
+                  }`}
+                  title="Extra Large Text Size"
+                >
+                  A++
+                </button>
               </div>
-              <p className="text-xs text-[#57534E] font-medium flex items-center gap-2">
-                <span>AAP-Aligned Guidance</span>
-                {babyProfile?.name && (
-                  <>
-                    <span>•</span>
-                    <span className="text-[#FF5A5F] font-bold">Profile: {babyProfile.name} ({babyProfile.ageMonths}m)</span>
-                  </>
-                )}
-              </p>
+
+              <button
+                onClick={() => {
+                  generatePediatricPdf({
+                    babyProfile: babyProfile || {
+                      name: 'Maya',
+                      ageMonths: 5,
+                      birthDate: '2026-03-15',
+                      gender: 'girl',
+                      wakeTime: '07:00',
+                      targetBedtime: '19:30',
+                      sleepGoal: 'Gentle routine'
+                    },
+                    sleepLogs,
+                    feedLogs,
+                    diaperLogs,
+                    activityLogs
+                  });
+                }}
+                className="px-3 py-1.5 rounded-xl bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold shadow-xs active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
+                title="Download 24h & 7-Day Pediatric Summary PDF for Doctor"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">PDF</span>
+              </button>
+              <button
+                onClick={handleClearHistory}
+                className="p-2 rounded-xl text-[#57534E] hover:text-[#1C1917] hover:bg-[#F0E6DD] transition-colors cursor-pointer"
+                title="Clear conversation"
+                aria-label="Clear chat history"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
+              <button
+                id="close-ai-agent-modal-btn"
+                onClick={onClose}
+                className="w-9 h-9 rounded-full bg-white border-2 border-[#D6C7BC] flex items-center justify-center text-[#1C1917] hover:bg-[#F0E6DD] transition-colors cursor-pointer"
+                aria-label="Close AI Agent"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* 3 Clinical Intelligence Engine Switchers */}
+          <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#F5EFEB] rounded-2xl border border-[#E7DDD5]">
             <button
-              onClick={handleClearHistory}
-              className="p-2 rounded-xl text-[#57534E] hover:text-[#1C1917] hover:bg-[#F0E6DD] transition-colors cursor-pointer"
-              title="Clear conversation"
-              aria-label="Clear chat history"
+              onClick={() => {
+                setSelectedEngine('dr_lullaby');
+                setMessages(prev => [
+                  ...prev,
+                  {
+                    id: `mode-${Date.now()}`,
+                    role: 'assistant',
+                    content: `### 🏥 Switched to Dr. Lullaby & Nurse Daisy (AAP Guidelines)
+Providing evidence-based pediatric clinical guidelines, safe sleep standards, formula sensitivity, and developmental milestones.`,
+                    timestamp: 'Now'
+                  }
+                ]);
+              }}
+              className={`py-1.5 px-2 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                selectedEngine === 'dr_lullaby'
+                  ? 'bg-[#FF5A5F] text-white shadow-xs'
+                  : 'text-[#57534E] hover:text-[#1C1917] hover:bg-white/60'
+              }`}
             >
-              <RotateCcw className="w-4 h-4" />
+              <Stethoscope className="w-3.5 h-3.5" />
+              <span className="truncate">Dr. Lullaby</span>
             </button>
+
             <button
-              id="close-ai-agent-modal-btn"
-              onClick={onClose}
-              className="w-9 h-9 rounded-full bg-white border-2 border-[#D6C7BC] flex items-center justify-center text-[#1C1917] hover:bg-[#F0E6DD] transition-colors cursor-pointer"
-              aria-label="Close AI Agent"
+              onClick={() => {
+                setSelectedEngine('ada_health');
+                setMessages(prev => [
+                  ...prev,
+                  {
+                    id: `mode-${Date.now()}`,
+                    role: 'assistant',
+                    content: `### 🔍 Switched to Ada Health Pediatric Triage
+Specializing in symptom probability assessments, fever threshold monitoring, and infant illness triage.`,
+                    timestamp: 'Now'
+                  }
+                ]);
+              }}
+              className={`py-1.5 px-2 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                selectedEngine === 'ada_health'
+                  ? 'bg-[#0284C7] text-white shadow-xs'
+                  : 'text-[#57534E] hover:text-[#1C1917] hover:bg-white/60'
+              }`}
             >
-              <X className="w-5 h-5" />
+              <Activity className="w-3.5 h-3.5" />
+              <span className="truncate">Ada Health</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setSelectedEngine('chatgpt_health');
+                setMessages(prev => [
+                  ...prev,
+                  {
+                    id: `mode-${Date.now()}`,
+                    role: 'assistant',
+                    content: `### ⚡ Switched to ChatGPT Health Assistant
+Specializing in personalized baby sleep schedules, gentle soothing scripts, night weaning transitions, and parent coaching.`,
+                    timestamp: 'Now'
+                  }
+                ]);
+              }}
+              className={`py-1.5 px-2 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                selectedEngine === 'chatgpt_health'
+                  ? 'bg-[#10A37F] text-white shadow-xs'
+                  : 'text-[#57534E] hover:text-[#1C1917] hover:bg-white/60'
+              }`}
+            >
+              <Zap className="w-3.5 h-3.5" />
+              <span className="truncate">ChatGPT Health</span>
             </button>
           </div>
         </div>
@@ -364,101 +548,207 @@ I'm ready for your new questions regarding sleep, infant health, feeding, and ba
           </button>
         </div>
 
-        {/* Messages Stream */}
-        <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4">
+        {/* Messages Stream - Large Visual Answer Canvas */}
+        <div className="flex-1 p-4 sm:p-7 overflow-y-auto space-y-6 bg-[#FFFBF7]/40">
           {messages.map((msg) => {
             const isUser = msg.role === 'user';
             return (
               <div
                 key={msg.id}
-                className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}
+                className={`flex gap-3 sm:gap-4 ${isUser ? 'justify-end' : 'justify-start'}`}
               >
                 {!isUser && (
-                  <div className="w-8 h-8 rounded-xl bg-[#FFE4E6] border border-[#FECDD3] flex items-center justify-center text-[#FF5A5F] shrink-0 mt-1">
-                    <Bot className="w-4 h-4" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#FFE4E6] border-2 border-[#FECDD3] flex items-center justify-center text-[#FF5A5F] shrink-0 mt-1 shadow-xs">
+                    <Bot className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
                 )}
 
                 <div
-                  className={`max-w-[85%] sm:max-w-[80%] rounded-2xl p-4 sm:p-5 shadow-xs relative group ${
+                  className={`rounded-3xl p-5 sm:p-7 shadow-md relative group transition-all ${
                     isUser
-                      ? 'bg-[#FF5A5F] text-white rounded-br-none'
-                      : 'bg-white border-2 border-[#E7DDD5] text-[#1C1917] rounded-bl-none'
+                      ? 'bg-[#FF5A5F] text-white rounded-br-none max-w-[85%] sm:max-w-[75%]'
+                      : 'bg-white border-2 border-[#E7DDD5] text-[#1C1917] rounded-bl-none max-w-[95%] w-full'
                   }`}
                 >
+                  {/* Assistant Clinical Badge Header */}
+                  {!isUser && (
+                    <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-[#F0E6DD] text-xs">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="px-2.5 py-0.5 rounded-full font-extrabold bg-[#DCFCE7] text-[#166534] border border-[#BBF7D0] flex items-center gap-1">
+                          <ShieldCheck className="w-3.5 h-3.5" />
+                          <span>Pediatric Clinical Verified</span>
+                        </span>
+                        <span className="px-2.5 py-0.5 rounded-full font-bold bg-[#F5EFEB] text-[#57534E]">
+                          👶 Patient: {babyProfile?.name || 'Baby'} ({babyProfile?.ageMonths || 5}m)
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[#78716C] font-mono text-[11px]">
+                        <Clock className="w-3 h-3" />
+                        <span>{msg.timestamp}</span>
+                      </div>
+                    </div>
+                  )}
+
                   {isUser ? (
-                    <p className="text-base font-semibold whitespace-pre-wrap leading-relaxed">
+                    <p className={`font-semibold whitespace-pre-wrap ${
+                      fontSize === 'xlarge' ? 'text-xl leading-relaxed' : fontSize === 'large' ? 'text-lg leading-relaxed' : 'text-base leading-relaxed'
+                    }`}>
                       {msg.content}
                     </p>
                   ) : (
-                    <div className="text-base leading-relaxed text-[#1C1917] space-y-3 prose prose-stone max-w-none">
+                    <div className={`space-y-4 max-w-none ${
+                      fontSize === 'xlarge'
+                        ? 'text-xl leading-loose'
+                        : fontSize === 'large'
+                        ? 'text-lg leading-relaxed'
+                        : 'text-base leading-relaxed'
+                    } text-[#1C1917]`}>
                       <ReactMarkdown
                         components={{
                           h3: ({ children }) => (
-                            <h3 className="font-serif text-lg font-bold text-[#1C1917] mt-3 mb-2 pb-1 border-b border-[#E7DDD5]">
-                              {children}
-                            </h3>
+                            <div className="p-3.5 sm:p-4 my-4 bg-[#FFF7ED] border-l-4 border-[#EA580C] rounded-r-2xl shadow-2xs">
+                              <h3 className="font-serif text-lg sm:text-2xl font-bold text-[#9A3412] flex items-center gap-2 m-0">
+                                <span>🩺</span>
+                                <span>{children}</span>
+                              </h3>
+                            </div>
                           ),
                           h4: ({ children }) => (
-                            <h4 className="font-bold text-base text-[#1C1917] mt-3 mb-1.5 flex items-center gap-1.5">
-                              {children}
+                            <h4 className="font-bold text-base sm:text-lg text-[#1C1917] mt-4 mb-2 flex items-center gap-2 pb-1 border-b border-[#F0E6DD]">
+                              <span className="w-2.5 h-2.5 rounded-full bg-[#FF5A5F]" />
+                              <span>{children}</span>
                             </h4>
                           ),
                           p: ({ children }) => (
-                            <p className="text-base text-[#1C1917] leading-relaxed mb-2.5 last:mb-0">
+                            <p className="text-[#1C1917] font-normal leading-relaxed mb-3 last:mb-0">
                               {children}
                             </p>
                           ),
                           ul: ({ children }) => (
-                            <ul className="list-disc pl-6 space-y-2 my-2.5 text-base text-[#1C1917]">
+                            <ul className="space-y-2.5 my-3 pl-2 sm:pl-4">
                               {children}
                             </ul>
                           ),
                           ol: ({ children }) => (
-                            <ol className="list-decimal pl-6 space-y-2 my-2.5 text-base text-[#1C1917]">
+                            <ol className="space-y-2.5 my-3 pl-2 sm:pl-4 list-decimal text-[#1C1917]">
                               {children}
                             </ol>
                           ),
                           li: ({ children }) => (
-                            <li className="text-base text-[#1C1917] leading-relaxed">
-                              {children}
+                            <li className="p-3 rounded-2xl bg-[#FFFBF7] border border-[#E7DDD5] shadow-2xs text-[#1C1917] font-medium flex items-start gap-2.5 leading-relaxed">
+                              <span className="text-[#059669] font-bold mt-0.5 shrink-0">✓</span>
+                              <div className="flex-1">{children}</div>
                             </li>
                           ),
                           strong: ({ children }) => (
-                            <strong className="font-bold text-[#1C1917]">
+                            <strong className="font-bold text-[#1C1917] bg-[#FEF3C7]/40 px-1 py-0.5 rounded">
                               {children}
                             </strong>
                           ),
                           blockquote: ({ children }) => (
-                            <blockquote className="border-l-4 border-[#FF5A5F] pl-4 py-2.5 my-3 bg-[#FFF1F2] rounded-r-2xl text-base font-semibold text-[#9F1239] leading-relaxed">
-                              {children}
-                            </blockquote>
+                            <div className="my-4 p-4 sm:p-5 rounded-2xl bg-[#FFF1F2] border-2 border-[#FECDD3] text-[#9F1239] shadow-xs space-y-1">
+                              <div className="flex items-center gap-2 font-extrabold text-xs uppercase tracking-wider text-[#BE123C]">
+                                <ShieldAlert className="w-4 h-4" />
+                                <span>Urgent Red Flags / Important Notice</span>
+                              </div>
+                              <div className="text-base sm:text-lg font-semibold leading-relaxed">
+                                {children}
+                              </div>
+                            </div>
                           )
                         }}
                       >
                         {msg.content}
                       </ReactMarkdown>
 
-                      {/* Copy action */}
-                      <div className="pt-2.5 border-t border-[#F0E6DD]/80 flex items-center justify-between text-xs text-[#57534E]">
-                        <span className="font-medium">{msg.timestamp}</span>
-                        <button
-                          onClick={() => handleCopy(msg.content, msg.id)}
-                          className="flex items-center gap-1.5 text-[#57534E] hover:text-[#1C1917] font-bold transition-colors cursor-pointer py-1 px-2 rounded-lg hover:bg-[#F5EFEB]"
-                        >
-                          {copiedId === msg.id ? (
-                            <>
-                              <Check className="w-3.5 h-3.5 text-[#22C55E]" />
-                              <span className="text-[#22C55E]">Copied Plan</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-3.5 h-3.5" />
-                              <span>Copy Plan</span>
-                            </>
-                          )}
-                        </button>
+                      {/* Interactive Care Checklist & Action Bar */}
+                      <div className="mt-5 pt-4 border-t-2 border-[#F0E6DD] space-y-3">
+                        <div className="flex items-center justify-between text-xs font-bold text-[#57534E]">
+                          <span className="uppercase tracking-wider flex items-center gap-1.5">
+                            <CheckSquare className="w-3.5 h-3.5 text-[#059669]" />
+                            <span>Parent Action Plan Checklist:</span>
+                          </span>
+                          <span className="text-[11px] text-[#78716C]">Tap to mark steps completed</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                          {[
+                            { id: `${msg.id}-step1`, label: 'Checked temperature & recorded reading' },
+                            { id: `${msg.id}-step2`, label: 'Monitored feeding and hydration ounces' },
+                            { id: `${msg.id}-step3`, label: 'Observed diaper wetness & stool color' },
+                            { id: `${msg.id}-step4`, label: 'Followed soothing & wake-window routine' }
+                          ].map((step) => {
+                            const isDone = !!checkedActions[step.id];
+                            return (
+                              <button
+                                key={step.id}
+                                type="button"
+                                onClick={() => toggleActionItem(step.id)}
+                                className={`p-2.5 rounded-xl border text-left flex items-center gap-2 transition-all cursor-pointer ${
+                                  isDone
+                                    ? 'bg-[#DCFCE7] border-[#86EFAC] text-[#166534] font-bold'
+                                    : 'bg-[#FFFBF7] border-[#E7DDD5] text-[#57534E] hover:bg-[#F5EFEB]'
+                                }`}
+                              >
+                                <div className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 ${
+                                  isDone ? 'bg-[#15803D] border-[#15803D] text-white' : 'border-[#D6C7BC] bg-white'
+                                }`}>
+                                  {isDone && <Check className="w-3 h-3" />}
+                                </div>
+                                <span className="text-[11px] truncate">{step.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Copy and Export tools */}
+                        <div className="pt-2.5 border-t border-[#F0E6DD]/80 flex items-center justify-between text-xs text-[#57534E]">
+                          <span className="font-mono text-[11px] text-[#78716C]">Case Reference: #{msg.id.slice(-6)}</span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleCopy(msg.content, msg.id)}
+                              className="flex items-center gap-1.5 text-[#57534E] hover:text-[#1C1917] font-bold transition-colors cursor-pointer py-1.5 px-3 rounded-xl border border-[#E7DDD5] bg-[#FFFBF7] hover:bg-[#F5EFEB]"
+                            >
+                              {copiedId === msg.id ? (
+                                <>
+                                  <Check className="w-3.5 h-3.5 text-[#22C55E]" />
+                                  <span className="text-[#22C55E]">Copied</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3.5 h-3.5" />
+                                  <span>Copy Plan</span>
+                                </>
+                              )}
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                generatePediatricPdf({
+                                  babyProfile: babyProfile || {
+                                    name: 'Maya',
+                                    ageMonths: 5,
+                                    birthDate: '2026-03-15',
+                                    gender: 'girl',
+                                    wakeTime: '07:00',
+                                    targetBedtime: '19:30',
+                                    sleepGoal: 'Gentle routine'
+                                  },
+                                  sleepLogs,
+                                  feedLogs,
+                                  diaperLogs,
+                                  activityLogs
+                                });
+                              }}
+                              className="flex items-center gap-1.5 text-white bg-[#059669] hover:bg-[#047857] font-bold transition-colors cursor-pointer py-1.5 px-3 rounded-xl shadow-xs"
+                            >
+                              <FileText className="w-3.5 h-3.5" />
+                              <span>Print / PDF</span>
+                            </button>
+                          </div>
+                        </div>
                       </div>
+
                     </div>
                   )}
                 </div>

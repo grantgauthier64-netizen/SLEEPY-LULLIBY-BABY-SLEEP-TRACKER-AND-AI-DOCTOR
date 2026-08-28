@@ -161,3 +161,31 @@ export interface DaySleepPattern {
     quality: 'peaceful' | 'restless' | 'broken';
   }[];
 }
+
+export interface VaccineRecord {
+  vaccineId: string;
+  isCompleted: boolean;
+  completedDate?: string; // YYYY-MM-DD
+  administeredBy?: string;
+  lotNumber?: string;
+  site?: 'left_thigh' | 'right_thigh' | 'left_arm' | 'right_arm' | 'oral';
+  sideEffects?: string[];
+  notes?: string;
+  updatedAt?: string;
+}
+
+export interface ImmunizationScheduleItem {
+  id: string;
+  name: string;
+  shortName: string;
+  doseNumber: number;
+  totalDoses: number;
+  targetAgeMonths: number;
+  ageLabel: string;
+  protectsAgainst: string;
+  description: string;
+  route: 'intramuscular' | 'oral' | 'subcutaneous';
+  mandatoryForDaycare: boolean;
+  commonReactions: string[];
+  aapComfortTips: string[];
+}

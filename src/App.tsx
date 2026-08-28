@@ -36,8 +36,10 @@ import {
   DiaperLog, 
   CustomActivityLog, 
   SoundTrack, 
-  BabyProfile 
+  BabyProfile,
+  VaccineRecord
 } from './types';
+import { INITIAL_VACCINE_RECORDS } from './data/vaccineScheduleData';
 import babyBottleBg from './assets/images/baby_bottle_dark_pastel_1787436304366.jpg';
 
 export default function App() {
@@ -45,6 +47,31 @@ export default function App() {
   const [feedLogs, setFeedLogs] = useState<FeedLog[]>(INITIAL_FEED_LOGS);
   const [diaperLogs, setDiaperLogs] = useState<DiaperLog[]>(INITIAL_DIAPER_LOGS);
   const [activityLogs, setActivityLogs] = useState<CustomActivityLog[]>(INITIAL_ACTIVITY_LOGS);
+
+  // Vaccination Records state with local persistence
+  const [vaccineRecords, setVaccineRecords] = useState<Record<string, VaccineRecord>>(() => {
+    try {
+      const saved = localStorage.getItem('lullaby_vaccine_records');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch {
+      // ignore
+    }
+    return INITIAL_VACCINE_RECORDS;
+  });
+
+  const handleUpdateVaccineRecord = (record: VaccineRecord) => {
+    setVaccineRecords((prev) => {
+      const updated = { ...prev, [record.vaccineId]: record };
+      try {
+        localStorage.setItem('lullaby_vaccine_records', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+  };
 
   const [activeSoundId, setActiveSoundId] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -189,6 +216,8 @@ export default function App() {
           diaperLogs={diaperLogs}
           activityLogs={activityLogs}
           babyProfile={babyProfile}
+          vaccineRecords={vaccineRecords}
+          onUpdateVaccineRecord={handleUpdateVaccineRecord}
           onOpenLoggerModal={handleOpenActivityLogger}
           onOpenAIAgent={() => setIsAIAgentOpen(true)}
           onAddSleepLog={handleAddSleepLog}
@@ -206,6 +235,10 @@ export default function App() {
         <OnSiteAIBabyDoctorSection
           babyProfile={babyProfile}
           onOpenFullModal={() => setIsAIAgentOpen(true)}
+          sleepLogs={logs}
+          feedLogs={feedLogs}
+          diaperLogs={diaperLogs}
+          activityLogs={activityLogs}
         />
 
         {/* 4. Features Overview Hub */}
@@ -228,6 +261,7 @@ export default function App() {
           feedLogs={feedLogs}
           diaperLogs={diaperLogs}
           activityLogs={activityLogs}
+          babyProfile={babyProfile}
           onAddSleepLog={handleAddSleepLog}
           onAddFeedLog={handleAddFeedLog}
           onAddDiaperLog={handleAddDiaperLog}
@@ -286,6 +320,10 @@ export default function App() {
         isOpen={isAIAgentOpen}
         onClose={() => setIsAIAgentOpen(false)}
         babyProfile={babyProfile}
+        sleepLogs={logs}
+        feedLogs={feedLogs}
+        diaperLogs={diaperLogs}
+        activityLogs={activityLogs}
       />
 
       {/* Interactive Sleep & Activity Logger Modal */}

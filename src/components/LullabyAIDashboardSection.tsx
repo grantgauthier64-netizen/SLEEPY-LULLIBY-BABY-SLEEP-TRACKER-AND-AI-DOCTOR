@@ -26,7 +26,8 @@ import {
   Thermometer,
   Smile,
   Frown,
-  Meh
+  Meh,
+  Syringe
 } from 'lucide-react';
 import { 
   SleepLog, 
@@ -34,9 +35,11 @@ import {
   DiaperLog, 
   CustomActivityLog, 
   BabyProfile,
-  UnifiedDailyEvent 
+  UnifiedDailyEvent,
+  VaccineRecord
 } from '../types';
 import { WEEKLY_SLEEP_PATTERNS } from '../data/sleepData';
+import { VaccinationTrackingCard } from './VaccinationTrackingCard';
 import babyBottleBg from '../assets/images/baby_bottle_dark_pastel_1787436304366.jpg';
 
 interface LullabyAIDashboardSectionProps {
@@ -45,6 +48,8 @@ interface LullabyAIDashboardSectionProps {
   diaperLogs: DiaperLog[];
   activityLogs: CustomActivityLog[];
   babyProfile: BabyProfile;
+  vaccineRecords?: Record<string, VaccineRecord>;
+  onUpdateVaccineRecord?: (record: VaccineRecord) => void;
   onOpenLoggerModal: (tab?: 'sleep' | 'feed' | 'diaper' | 'activity' | 'timer') => void;
   onOpenAIAgent: () => void;
   onAddSleepLog: (log: SleepLog) => void;
@@ -56,12 +61,14 @@ export const LullabyAIDashboardSection: React.FC<LullabyAIDashboardSectionProps>
   diaperLogs,
   activityLogs,
   babyProfile,
+  vaccineRecords,
+  onUpdateVaccineRecord,
   onOpenLoggerModal,
   onOpenAIAgent,
   onAddSleepLog
 }) => {
-  // Active Tab within Dashboard
-  const [dashboardTab, setDashboardTab] = useState<'all' | 'tracker' | 'doctor'>('all');
+  // Active Tab within Dashboard: 'all' | 'tracker' | 'doctor' | 'vaccines'
+  const [dashboardTab, setDashboardTab] = useState<'all' | 'tracker' | 'doctor' | 'vaccines'>('all');
 
   // Live Baby State (Awake vs Sleeping)
   const [isBabySleeping, setIsBabySleeping] = useState<boolean>(false);
@@ -71,7 +78,7 @@ export const LullabyAIDashboardSection: React.FC<LullabyAIDashboardSectionProps>
   // AI Pediatric Doctor in-dashboard state
   const [doctorQuery, setDoctorQuery] = useState<string>('');
   const [isDoctorLoading, setIsDoctorLoading] = useState<boolean>(false);
-  const [doctorActiveTool, setDoctorActiveTool] = useState<'fever' | 'feeding' | 'teething' | 'sleep' | 'safesleep'>('fever');
+  const [doctorActiveTool, setDoctorActiveTool] = useState<'fever' | 'feeding' | 'teething' | 'vaccines' | 'sleep' | 'safesleep'>('fever');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // In-dashboard live chat history
@@ -374,6 +381,18 @@ Here is evidence-based pediatric advice:
             >
               <Bot className="w-4 h-4 text-[#059669]" />
               <span>AI Baby Doctor</span>
+            </button>
+            <button
+              id="dash-tab-vaccines"
+              onClick={() => setDashboardTab('vaccines')}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                dashboardTab === 'vaccines'
+                  ? 'bg-white text-[#1C1917] shadow-sm'
+                  : 'text-[#57534E] hover:text-[#1C1917]'
+              }`}
+            >
+              <Syringe className="w-4 h-4 text-[#166534]" />
+              <span>Vaccine Schedule</span>
             </button>
           </div>
         </div>
@@ -769,6 +788,19 @@ Here is evidence-based pediatric advice:
                     <Smile className="w-3.5 h-3.5" />
                     <span>Teething Relief</span>
                   </button>
+
+                  <button
+                    id="dash-tool-vaccines"
+                    onClick={() => setDoctorActiveTool('vaccines')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer ${
+                      doctorActiveTool === 'vaccines'
+                        ? 'bg-[#059669] text-white shadow-2xs'
+                        : 'text-[#57534E] hover:text-[#1C1917]'
+                    }`}
+                  >
+                    <Syringe className="w-3.5 h-3.5" />
+                    <span>Vaccine Schedule</span>
+                  </button>
                 </div>
 
                 {/* Active Tool View: Infant Health & Fever */}
@@ -954,6 +986,60 @@ Here is evidence-based pediatric advice:
                   </div>
                 )}
 
+                {/* Active Tool View: Vaccine Schedule & Post-Shot Comfort */}
+                {doctorActiveTool === 'vaccines' && (
+                  <div className="space-y-4 bg-[#FFFBF7] p-4 sm:p-5 rounded-2xl border border-[#E7DDD5] animate-fadeIn">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-extrabold uppercase text-[#78716C]">
+                        CDC / AAP Schedule Highlights:
+                      </span>
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#DCFCE7] text-[#166534] border border-[#BBF7D0]">
+                        {babyProfile.ageMonths <= 2 ? '2-Month Round' : babyProfile.ageMonths <= 4 ? '4-Month Round' : babyProfile.ageMonths <= 6 ? '6-Month Round' : '12-Month Round'}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-white rounded-xl border border-[#E7DDD5] space-y-2 text-xs">
+                      <div className="font-bold text-[#1C1917] flex items-center gap-1.5">
+                        <Syringe className="w-3.5 h-3.5 text-[#166534]" />
+                        <span>Expected Immunizations for {babyProfile.name} ({babyProfile.ageMonths}m):</span>
+                      </div>
+                      <p className="text-[11px] text-[#57534E] leading-relaxed">
+                        {babyProfile.ageMonths < 2 
+                          ? 'HepB #2, DTaP #1, Rotavirus #1, Hib #1, PCV #1, IPV Polio #1' 
+                          : babyProfile.ageMonths <= 4 
+                          ? 'DTaP #2, RV #2, Hib #2, PCV #2, IPV #2' 
+                          : babyProfile.ageMonths <= 6 
+                          ? 'DTaP #3, Hib #3, PCV #3, IPV #3, HepB #3 + Annual Flu' 
+                          : 'MMR #1, Varicella #1, HepA #1, Hib #4, PCV #4'}
+                      </p>
+                    </div>
+
+                    <div className="text-[11px] text-[#57534E] bg-white p-2.5 rounded-xl border border-[#E7DDD5] space-y-1">
+                      <div>🌡️ <strong>Post-Shot Reactions:</strong> Low-grade fevers (99.5–101.5°F) & thigh soreness are normal 24–48h signs of immune antibody response.</div>
+                      <div>🧊 <strong>Soothing:</strong> Cool damp washcloth for 10 min on the thigh. Infant Acetaminophen (Tylenol) if ≥2 months per weight chart.</div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        onClick={() => setDashboardTab('vaccines')}
+                        className="py-2.5 px-3 rounded-xl bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold shadow-2xs active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <Syringe className="w-3.5 h-3.5" />
+                        <span>Open Full Vaccine Tracker</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleSendDoctorMessage(`What vaccines are due for my ${babyProfile.ageMonths}-month-old baby (${babyProfile.name}), and how should I treat post-shot fever and leg soreness?`)}
+                        disabled={isDoctorLoading}
+                        className="py-2.5 px-3 rounded-xl bg-white border border-[#E7DDD5] hover:bg-[#F5EFEB] text-[#1C1917] text-xs font-bold active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-[#059669]" />
+                        <span>Ask AI Doctor Vaccine Triage</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* In-Dashboard AI Doctor Live Chat Box */}
                 <div className="border-t border-[#F0E6DD] pt-4 space-y-3">
                   <div className="flex items-center justify-between text-xs font-bold text-[#1C1917]">
@@ -1038,6 +1124,24 @@ Here is evidence-based pediatric advice:
 
               </div>
 
+            </div>
+          )}
+
+          {/* ======================================================= */}
+          {/* VACCINATION TRACKING SECTION (Unified 'all' or 'vaccines') */}
+          {/* ======================================================= */}
+          {(dashboardTab === 'all' || dashboardTab === 'vaccines') && (
+            <div className="lg:col-span-12 animate-fadeIn">
+              <VaccinationTrackingCard
+                babyProfile={babyProfile}
+                vaccineRecords={vaccineRecords}
+                onUpdateVaccineRecord={onUpdateVaccineRecord}
+                onAskDoctor={(prompt) => {
+                  handleSendDoctorMessage(prompt);
+                  const docSection = document.getElementById('lullaby-ai-dashboard');
+                  if (docSection) docSection.scrollIntoView({ behavior: 'smooth' });
+                }}
+              />
             </div>
           )}
 

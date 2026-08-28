@@ -210,7 +210,8 @@ export const PoopVisualGuideCard: React.FC<PoopVisualGuideCardProps> = ({
 }) => {
   const [selectedColorId, setSelectedColorId] = useState<PoopColorId>(initialColor);
   const [selectedTextureId, setSelectedTextureId] = useState<PoopTextureId>(initialTexture);
-  const [activeTab, setActiveTab] = useState<'color' | 'texture' | 'matrix'>('color');
+  const [selectedFoodExample, setSelectedFoodExample] = useState<string>('carrots');
+  const [activeTab, setActiveTab] = useState<'color' | 'texture' | 'undigested' | 'matrix'>('color');
 
   const currentColor = POOP_COLORS.find(c => c.id === selectedColorId) || POOP_COLORS[0];
   const currentTexture = POOP_TEXTURES.find(t => t.id === selectedTextureId) || POOP_TEXTURES[0];
@@ -222,6 +223,10 @@ export const PoopVisualGuideCard: React.FC<PoopVisualGuideCardProps> = ({
 
   const handleAskAIDoctor = () => {
     if (!onAskDoctor) return;
+    if (activeTab === 'undigested') {
+      onAskDoctor(`My baby ${babyName} (${babyAgeMonths} months old) has undigested food pieces (${selectedFoodExample}) in their poop. Is this normal, what is the clinical cause, and how should I prepare their food so it's easier to digest?`);
+      return;
+    }
     const prompt = `My baby ${babyName} (${babyAgeMonths} months old) has ${currentColor.name} colored poop with a ${currentTexture.name} texture (${currentTexture.id}). Can you evaluate what this combination means, whether it is normal, and what steps I should take?`;
     onAskDoctor(prompt);
   };
@@ -247,39 +252,50 @@ export const PoopVisualGuideCard: React.FC<PoopVisualGuideCardProps> = ({
               </span>
             </div>
             <p className="text-xs text-[#57534E]">
-              Interactive visual assessment for stool color & texture (Diarrhea, Runny, Pasty, Soft, Firm)
+              Interactive visual assessment for stool color, texture, & undigested solid foods
             </p>
           </div>
         </div>
 
         {/* Tab switchers */}
-        <div className="flex items-center bg-[#F5EFEB] p-1 rounded-2xl border border-[#E7DDD5]">
+        <div className="flex items-center bg-[#F5EFEB] p-1 rounded-2xl border border-[#E7DDD5] overflow-x-auto scrollbar-none">
           <button
             type="button"
             onClick={() => setActiveTab('color')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'color' 
                 ? 'bg-white text-[#1C1917] shadow-xs' 
                 : 'text-[#78716C] hover:text-[#1C1917]'
             }`}
           >
-            🎨 1. Color ({POOP_COLORS.length})
+            🎨 Color
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('texture')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'texture' 
                 ? 'bg-white text-[#1C1917] shadow-xs' 
                 : 'text-[#78716C] hover:text-[#1C1917]'
             }`}
           >
-            🥣 2. Type & Texture ({POOP_TEXTURES.length})
+            🥣 Texture
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('undigested')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all cursor-pointer ${
+              activeTab === 'undigested' 
+                ? 'bg-[#EA580C] text-white shadow-xs' 
+                : 'text-[#78716C] hover:text-[#1C1917]'
+            }`}
+          >
+            🥕 Undigested Food
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('matrix')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'matrix' 
                 ? 'bg-white text-[#1C1917] shadow-xs' 
                 : 'text-[#78716C] hover:text-[#1C1917]'
@@ -478,7 +494,87 @@ export const PoopVisualGuideCard: React.FC<PoopVisualGuideCardProps> = ({
         </div>
       )}
 
-      {/* TAB 3: COMBINED REPORT MATRIX */}
+      {/* TAB 3: UNDIGESTED FOOD IN POOP */}
+      {activeTab === 'undigested' && (
+        <div className="space-y-4 animate-fadeIn">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-extrabold uppercase text-[#57534E] tracking-wider">
+              Step 1: Inspect Common Undigested Food Items
+            </span>
+            <span className="text-[11px] font-bold text-[#EA580C]">
+              100% Normal Milestone
+            </span>
+          </div>
+
+          {/* Quick Explanation Banner */}
+          <div className="p-4 rounded-2xl bg-[#FFF7ED] border-2 border-[#FED7AA] text-xs text-[#7C2D12] space-y-1.5">
+            <strong className="block text-sm font-bold text-[#9A3412]">
+              🔬 Why do whole food pieces appear in baby's diaper?
+            </strong>
+            <p className="leading-relaxed text-[#57534E]">
+              Babies have a very fast gut transit time (<strong>4–8 hours</strong>), lack grinding molar teeth, have lower levels of plant-fiber enzymes (amylase/cellulase), and eat fibrous foods with tough cellulose skins (corn, peas, carrot bits).
+            </p>
+          </div>
+
+          {/* Food examples selector */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            {[
+              { id: 'carrots', name: 'Carrots & Squash', emoji: '🥕', why: 'Dense beta-carotene fibers pass quickly before breakdown. Steam until squishable.' },
+              { id: 'corn', name: 'Corn Kernels', emoji: '🌽', why: 'Cellulose outer skin is completely indigestible. Passes whole in both babies and adults.' },
+              { id: 'peas', name: 'Peas & Edamame', emoji: '🫛', why: 'Waxy skin protects inner starch. Gently flatten peas with fingers before serving.' },
+              { id: 'banana', name: 'Banana Specks', emoji: '🍌', why: 'Oxidized banana seed fibers turn into tiny black thread specks (often mistaken for worms!).' },
+            ].map((item) => (
+              <button
+                type="button"
+                key={item.id}
+                onClick={() => setSelectedFoodExample(item.id)}
+                className={`p-3 rounded-2xl border-2 transition-all flex flex-col items-center gap-1.5 cursor-pointer text-center relative ${
+                  selectedFoodExample === item.id
+                    ? 'border-[#EA580C] bg-[#FFF7ED] shadow-sm ring-2 ring-[#EA580C]/20 scale-102'
+                    : 'border-[#E7DDD5] bg-[#FFFBF7] hover:bg-[#F5EFEB]'
+                }`}
+              >
+                <span className="text-2xl">{item.emoji}</span>
+                <span className="text-xs font-extrabold text-[#1C1917] block leading-tight">
+                  {item.name}
+                </span>
+                <span className="text-[9px] font-bold text-[#EA580C] bg-white px-1.5 py-0.5 rounded border border-[#FED7AA]">
+                  Safe & Normal
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* Practical Checklist: What to do & How to fix */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div className="p-4 rounded-2xl bg-[#F0FDF4] border-2 border-[#BBF7D0] space-y-1.5">
+              <strong className="block text-[#166534] font-bold text-xs uppercase">
+                📋 What to Check:
+              </strong>
+              <ul className="space-y-1 text-[#14532D]">
+                <li>• Stool is soft/pasty (not liquid diarrhea).</li>
+                <li>• Baby has 5–6+ wet diapers/day.</li>
+                <li>• Steady weight gain & happy mood.</li>
+                <li>• No blood streaks or fever.</li>
+              </ul>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white border-2 border-[#E7DDD5] space-y-1.5">
+              <strong className="block text-[#1C1917] font-bold text-xs uppercase">
+                🛠️ How to Fix / Kitchen Tips:
+              </strong>
+              <ul className="space-y-1 text-[#44403C]">
+                <li>• <strong>Squish Test:</strong> Steam food till finger-mashable.</li>
+                <li>• <strong>Flatten Skins:</strong> Pinch peas & blueberries flat.</li>
+                <li>• <strong>Model Chewing:</strong> Exaggerate chewing at meals.</li>
+                <li>• <strong>Water Sips:</strong> 1–2 oz water with meals (6m+).</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: COMBINED REPORT MATRIX */}
       {activeTab === 'matrix' && (
         <div className="space-y-4 animate-fadeIn">
           <div className="p-5 rounded-3xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-4">

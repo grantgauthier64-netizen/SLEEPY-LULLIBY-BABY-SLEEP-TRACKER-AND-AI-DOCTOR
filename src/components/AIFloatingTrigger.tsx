@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bot, Sparkles, X, MessageSquareHeart } from 'lucide-react';
+import { Bot, Sparkles, X, Activity, Stethoscope } from 'lucide-react';
 
 interface AIFloatingTriggerProps {
   onClick: () => void;
@@ -18,16 +18,20 @@ export const AIFloatingTrigger: React.FC<AIFloatingTriggerProps> = ({
         isSoundBarOpen ? 'bottom-24' : 'bottom-6'
       }`}
     >
-      {/* Speech Prompt Pill Banner */}
+      {/* Speech Prompt Pill Banner with Ada Health & ChatGPT Health badges */}
       {showTooltip && (
-        <div className="bg-[#1C1917] text-white px-3.5 py-2 rounded-2xl shadow-xl border border-white/20 flex items-center gap-2.5 max-w-xs animate-bounce-subtle text-xs">
-          <span className="text-base">🍼</span>
+        <div className="bg-[#1C1917] text-white px-3.5 py-2.5 rounded-2xl shadow-xl border border-white/20 flex items-center gap-2.5 max-w-xs animate-bounce-subtle text-xs">
+          <span className="text-base">🩺</span>
           <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <span className="px-1.5 py-0.2 bg-[#0284C7] text-white rounded text-[9px] font-bold uppercase">Ada Health</span>
+              <span className="px-1.5 py-0.2 bg-[#10A37F] text-white rounded text-[9px] font-bold uppercase">ChatGPT Health</span>
+            </div>
             <p className="font-extrabold text-white text-[11px] leading-tight">
-              Have questions about baby?
+              24/7 AI Pediatrician Ready
             </p>
             <p className="text-[10px] text-white/80 leading-tight">
-              Ask AI Pediatric & Health Agent
+              Fever, sleep regressions & symptom triage
             </p>
           </div>
           <button
@@ -43,12 +47,12 @@ export const AIFloatingTrigger: React.FC<AIFloatingTriggerProps> = ({
         </div>
       )}
 
-      {/* Main Glowing AI Button */}
+      {/* Main Glowing AI Doctor Button */}
       <button
-        id="floating-ai-agent-btn"
+        id="floating-ai-doctor-btn"
         onClick={onClick}
-        className="group relative flex items-center gap-2.5 bg-[#FF5A5F] hover:bg-[#FF4147] text-white font-extrabold px-4 sm:px-5 py-3.5 rounded-full shadow-2xl shadow-[#FF5A5F]/50 border-2 border-white/40 hover:scale-105 active:scale-95 transition-all cursor-pointer"
-        aria-label="Open AI Baby & Health Agent"
+        className="group relative flex items-center gap-2.5 bg-gradient-to-r from-[#7C3AED] via-[#FF5A5F] to-[#0284C7] hover:opacity-95 text-white font-extrabold px-4 sm:px-5 py-3.5 rounded-full shadow-2xl shadow-[#7C3AED]/40 border-2 border-white/50 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+        aria-label="Open AI Baby Doctor (Ada Health & ChatGPT Health)"
       >
         <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -56,12 +60,17 @@ export const AIFloatingTrigger: React.FC<AIFloatingTriggerProps> = ({
         </span>
 
         <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
-          <Bot className="w-4 h-4 text-white" />
+          <Stethoscope className="w-4 h-4 text-white" />
         </div>
 
-        <span className="text-sm font-bold tracking-tight">
-          Ask Baby AI
-        </span>
+        <div className="text-left">
+          <span className="text-xs sm:text-sm font-bold tracking-tight block leading-none">
+            AI Doctor
+          </span>
+          <span className="text-[9px] text-white/90 font-medium leading-none block mt-0.5">
+            Ada + ChatGPT Health
+          </span>
+        </div>
 
         <Sparkles className="w-4 h-4 text-amber-200 group-hover:rotate-12 transition-transform" />
       </button>

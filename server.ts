@@ -15,8 +15,69 @@ function getPediatricFallbackAdvice(query: string, babyProfile: any): string {
   const name = babyProfile?.name || 'your baby';
   const age = babyProfile?.ageMonths !== undefined ? babyProfile.ageMonths : 5;
 
-  // 1. Curdled Milk / Formula Spit-Up & Reflux
+  // 1. Undigested Food & Solid Pieces in Baby Poop / Diaper
   if (
+    q.includes('undigest') ||
+    q.includes('pieces in poop') ||
+    q.includes('chunks in poop') ||
+    q.includes('food in poop') ||
+    q.includes('food in stool') ||
+    q.includes('carrots in poop') ||
+    q.includes('corn in poop') ||
+    q.includes('peas in poop') ||
+    q.includes('banana in poop') ||
+    q.includes('seeds in poop') ||
+    q.includes('raisin in poop') ||
+    (q.includes('solid') && (q.includes('poop') || q.includes('stool') || q.includes('diaper')) && (q.includes('whole') || q.includes('piece') || q.includes('chunk') || q.includes('digest')))
+  ) {
+    return `### 🥕 Undigested Food in Baby Poop: Causes, What to Do & How to Fix (Pediatric Guide)
+
+Dear Parent, finding visible pieces of carrots, corn, peas, sweet potatoes, blueberries, or black banana specks in ${name}'s diaper is **one of the most common surprises for new parents**, but it is **100% normal, safe, and expected**!
+
+---
+
+### 🔬 1. The Causes: Why Does Food Come Out Whole?
+- **Immature Infant Digestive System:** ${name}'s digestive tract is still developing. An infant's gut transit time is very fast (**4–8 hours** compared to 24–48 hours in adults). Food moves through before the gut can completely break down tough cell walls.
+- **Lack of Molar Teeth (No Chewing Yet):** Babies only have front incisors (or no teeth at all). They "chew" using their gums and tongue, which cannot grind down fibrous foods. They often swallow soft chunks whole.
+- **Developing Digestive Enzymes:** Babies produce lower levels of certain digestive enzymes (such as salivary and pancreatic **amylase** and **cellulase**) which are needed to break down complex plant starches and fiber.
+- **Insoluble Plant Cellulose & Skins:** Foods with tough outer cellulose skins (like **corn kernels, peas, carrot bits, blueberry skins, tomato skins, and raisins**) resist stomach acid and pass through virtually unchanged in both babies and adults!
+- **Black Threads / Banana Specks:** Digested banana fibers naturally oxidize in the gut into tiny black thread-like specks that look like "little worms" or poppy seeds. This is 100% harmless.
+
+---
+
+### 📋 2. What to Do: Parent Clinical Checklist
+1. **Relax & Celebrate:** Finding food bits in the diaper is a normal sign that ${name} is exploring table foods and practicing swallowing!
+2. **Assess Stool Consistency:** Check if the surrounding stool is soft, pasty, or formed (healthy) vs. watery, explosive liquid (diarrhea).
+3. **Monitor Hydration & Weight:** Ensure ${name} is producing **5–6+ wet diapers every 24 hours**, staying energetic, and gaining weight steadily.
+4. **Inspect Diaper for Warning Signs:** Confirm there is **no blood (red streaks), black tarry melena, or thick pus-like mucus**.
+
+---
+
+### 🛠️ 3. How to Fix It for New Parents (Kitchen & Feeding Protocol)
+1. **Steam Until "Squishable":** Cook carrots, apples, squash, and broccoli until they can be effortlessly mashed between your thumb and forefinger (the "squish test").
+2. **Mash or Finely Dice Tough Skins:**
+   - **Peas & Blueberries:** Flatten or pinch each pea/berry with your fingers before serving to prevent choking and help gut enzymes access the interior.
+   - **Carrots & Apples:** Finely grate, steam until buttery soft, or mash with a fork.
+   - **Corn:** Puree or wait until baby has developed grinding jaw movements (typically 12+ months).
+3. **Model Chewing at the Table:** Exaggerate chewing movements with wide open jaw motions while ${name} watches you eat. Babies learn mastication through imitation!
+4. **Offer Sips of Water With Meals:** If ${name} is **6 months or older**, offer 1–2 ounces of water in an open cup or straw cup during meals to aid digestive movement.
+5. **Keep Breast Milk / Formula as Primary Nutrition:** Remember: food before one is largely for fun, sensory exposure, and motor skills. ${name} still receives the vast majority of calories, protein, and vitamins from milk or formula!
+
+---
+
+### 🚨 4. When to Call the Pediatrician (Red Flags)
+Contact your doctor if you notice:
+- **Frequent Watery Diarrhea:** Food pieces floating in liquid diarrhea lasting >24–48 hours.
+- **Signs of Pain or Distress:** Baby crying inconsolably, drawing knees up to chest, or experiencing a rigid, swollen belly.
+- **Blood or Mucus:** Visible red blood streaks or black tarry stools.
+- **Weight Loss / Failure to Thrive:** Baby stops gaining weight or dropping growth percentiles.
+- **Fever:** Rectal temperature ≥100.4°F (38.0°C) alongside stool changes.`;
+  }
+
+  // 2. Baby Throws Up / Spits Up Sour Milk (Acidic Curdled Formula / Breast Milk)
+  if (
+    q.includes('sour milk') || 
+    (q.includes('sour') && (q.includes('spit') || q.includes('throw') || q.includes('vomit') || q.includes('puke') || q.includes('milk') || q.includes('formula'))) ||
     q.includes('curd') || 
     q.includes('spit up') || 
     q.includes('spit-up') || 
@@ -28,46 +89,53 @@ function getPediatricFallbackAdvice(query: string, babyProfile: any): string {
     q.includes('reflux') ||
     (q.includes('formula') && (q.includes('spit') || q.includes('curd') || q.includes('puke') || q.includes('sour')))
   ) {
-    return `### 🍼 Why Does Baby Spit Up Curd-Like / Cottage-Cheese Stuff After Formula? (Pediatric Explanation)
+    return `### 🍼 Baby Throwing Up / Spitting Up Sour Milk: Causes, What to Do & How to Fix (Pediatric Breakdown)
 
-Dear Parent, seeing curd-like, chunky, or cottage-cheese-textured spit-up after a formula or milk bottle is **one of the most common parent concerns**, but in the vast majority of cases, it is **100% normal and harmless**! Here is the clinical pediatric breakdown of what is happening inside ${name}'s tummy:
-
----
-
-### 🔬 1. The Science: Why Formula Turns Into "Curdled Cheese"
-- **Mixing with Stomach Acid:** When formula enters ${name}'s stomach, it immediately mixes with natural gastric juices (hydrochloric acid and digestive enzymes like pepsin).
-- **Protein Coagulation:** The acidic environment causes the milk proteins (**casein and whey**) to curdle and clump into white, cottage-cheese-like curds. This is the **normal first step of digestion**!
-- **The Timing Clue:**
-  - **Spit-up immediately after feed (<5 mins):** Looks like smooth, liquid formula (hasn't mixed with stomach acid yet).
-  - **Spit-up 15–60 minutes after feed:** Looks like **thick, curdled milk, cottage cheese lumps, or watery clear liquid with white clumps** with a slightly sour smell. This simply proves ${name}'s stomach acid is working properly to digest the formula.
+Dear Parent, smelling sour milk or seeing chunky curdled white vomit after a feeding can be alarming, but in the overwhelming majority of cases, it is **normal infant physiological reflux**! Here is the evidence-based pediatric explanation for ${name} (${age} months old):
 
 ---
 
-### 👶 2. Why Does It Come Back Up? (Immature LES Valve)
-At ${age} months old, ${name}'s **Lower Esophageal Sphincter (LES)**—the tiny muscular ring between the esophagus and the stomach—is still developing and acts like a loose valve.
-- When baby burps, wiggles, sits in a car seat, gets their tummy pressed during a diaper change, or drinks too quickly, the curdled stomach contents easily splash back up the esophagus.
-- If ${name} is alert, smiling, gaining weight, and doesn't cry in pain when spitting up, pediatricians call them a **"Happy Spitter"** (physiologic infant reflux).
+### 🔬 1. The Causes: Why Is the Milk Sour and Curdled?
+- **Stomach Acid & Pepsin Reaction:** When milk enters ${name}'s stomach, it immediately interacts with **hydrochloric acid and gastric enzymes (pepsin)**. This acid breaks down milk sugars and coagulates milk proteins (**casein and whey**) into white curd clumps with a vinegar/yogurt-like sour scent. This proves the stomach's natural acid digestive chemistry is functioning properly!
+- **Immature Lower Esophageal Sphincter (LES):** The muscular valve between ${name}'s esophagus and stomach is still weak and loose. When the stomach contracts or when baby moves, the acidic milk easily splashes back up into the mouth.
+- **Swallowed Air (Aerophagia):** Gulping milk too quickly or using a nipple with the wrong flow rate forces air into the stomach. When that air bubble rises as a burp, it acts like an elevator pushing sour stomach contents upward.
+- **Overfeeding / Full Stomach:** A newborn's stomach is the size of an egg. Overfilling causes excess curdled milk to spill out over the top of the sphincter.
+- **Abdominal Pressure Post-Feed:** Putting baby down flat immediately, strapping into a tight car seat, wearing tight diaper waistbands, or active tummy time right after feeding compresses the stomach.
 
 ---
 
-### 🛠️ 3. Proven Pediatric Steps to Reduce Curdled Spit-Up:
-1. **The 20–30 Minute Upright Rule:** Hold ${name} upright on your chest or lap for 20–30 minutes after every bottle. Gravity keeps the milk down while the stomach empties into the small intestine.
-2. **Paced Bottle Feeding & Slow-Flow Nipples:** Keep the bottle semi-horizontal so ${name} drinks over 15–20 minutes rather than gulping air.
-3. **Burp Halfway Through:** Burp ${name} every 2–3 ounces (or between breasts) to release trapped air bubbles before they push digested milk back up.
-4. **Avoid Tight Diapers & Pressure on the Belly:** Loosen diaper waistbands slightly and avoid vigorous tummy time or bouncing immediately after a feed.
-5. **Smaller, More Frequent Feeds:** If ${name}'s stomach is overstretched, reducing bottle size by 0.5–1 oz and feeding slightly more often can relieve excess pressure.
+### 📋 2. What to Do: Parent Diagnostic Evaluation
+1. **Differentiate "Happy Spitter" vs. GERD vs. Illness:**
+   - **Happy Spitter (90% of cases):** Baby spits up sour curds, but smiles, stays playful, gains weight, and shows zero distress. **Treatment:** Reassurance & simple positioning.
+   - **GERD (Gastroesophageal Reflux Disease):** Baby arches back in pain, screams during/after feeds, coughs, or refuses the bottle. **Treatment:** Pediatric evaluation for acid suppression or formula adjustment.
+   - **Stomach Bug (Gastroenteritis):** Sudden forceful throwing up accompanied by fever, watery diarrhea, and lethargy.
+2. **Check Hydration:** Count wet diapers (**minimum 5–6 wet diapers every 24 hours**).
+3. **Note the Spit-Up Timing:**
+   - *Immediately after feed (<5 mins):* Liquid, sweet-smelling milk (fresh from bottle/breast).
+   - *15–60 mins after feed:* Thick, curdled, cottage-cheese lumps with a sour smell (acidified in stomach).
 
 ---
 
-### 🚨 4. When to Call the Pediatrician (Red Flag Warning Signs):
-Contact your doctor or seek prompt pediatric care if you notice:
-- **Projective Vomiting:** Shooting forcefully across the room after every feed (can indicate *pyloric stenosis*).
-- **Green or Yellow Bile:** Spit-up or vomit that is bright green or dark yellow/bile-colored.
-- **Blood:** Streaks of red blood or dark brown "coffee-ground" specks.
-- **Pain & Arching:** Crying in distress, arching their back in pain during or after feeds, or refusing bottles (may indicate GERD or cow's milk protein sensitivity).
-- **Weight Loss or Poor Growth:** Dropping percentiles on growth curves or producing fewer than 5–6 wet diapers daily.
+### 🛠️ 3. How to Fix It (Step-by-Step Parent Protocol)
+1. **The 20–30 Minute Upright Rule:** Hold ${name} upright against your shoulder or seated on your lap for **20–30 minutes after every feeding**. Never lay baby flat immediately after eating.
+2. **Paced Bottle Feeding & Anti-Colic Slow-Flow Nipples:**
+   - Keep the bottle semi-horizontal so milk only fills the tip without pouring rapidly.
+   - Allow ${name} to drink in gentle 15–20 minute sessions instead of chugging in 5 minutes.
+3. **Burp Halfway Through the Feed:** Burp ${name} every **2–3 ounces (or between breasts)**. Releasing small air bubbles early prevents a giant gas bubble from launching sour milk later.
+4. **Offer Smaller, More Frequent Feeds:** If ${name} takes 5 oz every 4 hours, try offering 4 oz every 3 hours to prevent stretching the stomach beyond capacity.
+5. **Loosen Diapers & Avoid Tummy Pressure:** Keep diaper waistbands comfortable and wait at least **45–60 minutes post-feed before tummy time or bouncy chair play**.
+6. **Pediatric Formula / Diet Review:** If ${name} is formula-fed and experiences painful reflux or eczema, discuss hypoallergenic hydrolyzed formula (**Nutramigen, Alimentum**) or anti-reflux formula (**Enfamil AR**) with your pediatrician.
 
-*💡 Bottom line: If ${name} is cheerful, wetting regular diapers, and growing steadily, curdled spit-up is just normal digestion taking its course!*`;
+---
+
+### 🚨 4. When to Call the Pediatrician (Red Flag Warning Signs)
+Seek immediate pediatric or emergency medical care if you observe:
+- **Forceful Projectile Vomiting:** Milk shooting several feet across the room after every feeding (a hallmark sign of *Pyloric Stenosis* in infants 2–12 weeks).
+- **Green or Bright Yellow Bile:** Vomit containing dark green or bright yellow digestive bile (indicates potential bowel obstruction).
+- **Blood Specks:** Red blood streaks or dark brown "coffee ground" specks in vomit.
+- **Dehydration:** Producing fewer than 4 wet diapers in 24 hours, sunken fontanelle (soft spot), dry lips, crying without tears, or extreme lethargy.
+- **Fever:** Temperature ≥100.4°F (38.0°C) in baby under 3 months, or lasting >48 hours in older babies.
+- **Weight Loss or Stagnation:** Dropping percentiles on growth curves.`;
   }
 
   // 2. Baby Poop Colors & Stool Texture Interpretation (Diarrhea, Runny, Pasty, Soft, Firm)
@@ -179,6 +247,73 @@ It is very common for parents to suspect dairy sensitivity when baby is fussy, g
 - Inconsolable crying with abdominal rigidity.
 - Signs of dehydration (<5–6 wet diapers/day, sunken soft spot).
 - Severe eczema flare-ups or swelling around the face.`;
+  }
+
+  // Vaccination & Immunization Schedule & Post-Shot Triage (CDC / AAP)
+  if (
+    q.includes('vaccin') || 
+    q.includes('immuniz') || 
+    q.includes('shot') || 
+    q.includes('dtap') || 
+    q.includes('hepb') || 
+    q.includes('rotavirus') || 
+    q.includes('hib') || 
+    q.includes('pcv') || 
+    q.includes('polio') || 
+    q.includes('ipv') || 
+    q.includes('mmr') || 
+    q.includes('varicella') || 
+    q.includes('chickenpox') || 
+    q.includes('hepa') ||
+    q.includes('post-vaccine') ||
+    q.includes('post shot')
+  ) {
+    return `### 💉 CDC & AAP Pediatric Immunization Guide for ${name} (${age} Months Old)
+
+Dear Parent, keeping ${name} protected against serious preventable illnesses is one of the greatest gifts for their lifelong health. Here is the clinical pediatric breakdown for your baby's vaccination schedule:
+
+---
+
+### 📅 1. Recommended CDC / AAP Immunization Schedule
+- **Birth (Hospital):** **Hepatitis B #1** (Liver protection).
+- **1–2 Months:** **Hepatitis B #2**.
+- **2 Months:**
+  - **DTaP #1** (Whooping cough / Pertussis, Tetanus, Diphtheria)
+  - **Rotavirus #1 (RV)** (Oral sweet liquid drops for severe diarrhea)
+  - **Hib #1** (Haemophilus influenzae type b — bacterial meningitis)
+  - **PCV15/20 #1** (Pneumococcal pneumonia, blood & ear infections)
+  - **Polio #1 (IPV)** (Infantile paralysis)
+- **4 Months:** **DTaP #2, RV #2, Hib #2, PCV15/20 #2, IPV #2**.
+- **6 Months:** **DTaP #3, Hib #3, PCV15/20 #3, IPV #3, HepB #3** + Seasonal **Flu Shot** & **COVID-19** mRNA vaccine.
+- **12 Months (1st Birthday):** **MMR #1** (Measles, Mumps, Rubella), **Varicella #1** (Chickenpox), **HepA #1**, **PCV Booster #4**, **Hib Booster #4**.
+- **15–18 Months:** **DTaP Booster #4**, **HepA #2**.
+
+---
+
+### 🌡️ 2. Expected Mild Reactions in the First 24–48 Hours
+1. **Low-Grade Fever (99.5°F – 101.5°F):** This is a **positive sign** that ${name}'s immune system is actively creating protective antibodies.
+2. **Injection Site Tenderness & Knot:** A small, firm, non-painful knot or redness on the thigh muscle is normal and can persist for 1–2 weeks.
+3. **Mild Fussiness & Sleepiness:** Baby may take slightly longer naps or want extra contact cuddling.
+4. **Rotavirus Oral Drops:** Mild, temporary loose stools or spit-up for 24–48 hours.
+
+---
+
+### 🛠️ 3. AAP Comfort & Soothing Protocol
+1. **Cool Damp Washcloth:** Place over the thigh injection site for 10 minutes at a time to reduce soreness and heat.
+2. **Gentle Leg Bicycling:** Moving ${name}'s legs helps disperse injected fluids through the muscle tissue.
+3. **Skin-to-Skin & Extra Nursing:** Breastfeed or bottle-feed right after the shots; milk provides natural endorphin pain relief.
+4. **Infant Acetaminophen (Tylenol):** If ${name} is in marked discomfort and is ≥2 months old, you may administer infant acetaminophen according to your pediatrician's exact weight-based dosage chart. *(Note: Do NOT give pre-emptive medication before shots, as it may slightly reduce antibody formation).*
+5. **No Ibuprofen Under 6 Months:** Ibuprofen (Motrin/Advil) is strictly reserved for infants 6 months and older.
+
+---
+
+### 🚨 4. When to Call the Pediatrician (Red Flags)
+Contact your doctor or seek prompt medical care if:
+- Fever exceeds **104.0°F (40.0°C)** or rectal temp ≥100.4°F if ${name} is under 3 months.
+- Crying continuously and inconsolably for **more than 3 hours**.
+- High-pitched, weak, or abnormal shrill cry.
+- Swelling of face, lips, or widespread hives (allergic reaction).
+- Extreme lethargy or difficulty waking baby for feeds.`;
   }
 
   // 3. Infant Health & Fever (Comprehensive AAP Triage)
@@ -430,7 +565,7 @@ async function startServer() {
   // AI Pediatric Chat endpoint
   app.post("/api/ai/chat", async (req, res) => {
     try {
-      const { messages, babyProfile } = req.body;
+      const { messages, babyProfile, engine = 'dr_lullaby' } = req.body;
       if (!messages || !Array.isArray(messages) || messages.length === 0) {
         return res.status(400).json({ error: "Missing message history" });
       }
@@ -443,9 +578,9 @@ async function startServer() {
 
       // If no Gemini client or API key, return pediatric expert rule response
       if (!ai) {
-        console.log("Using pediatric clinical expert engine for query:", latestQuery);
+        console.log(`Using pediatric clinical expert engine [${engine}] for query:`, latestQuery);
         const fallbackReply = getPediatricFallbackAdvice(latestQuery, babyProfile);
-        return res.json({ reply: fallbackReply, source: "pediatric-knowledge-engine" });
+        return res.json({ reply: fallbackReply, source: `pediatric-knowledge-engine-${engine}` });
       }
 
       const profileContext = babyProfile ? `
@@ -458,15 +593,42 @@ Current Baby Context:
 - Primary Sleep Goal: ${babyProfile.sleepGoal || 'Gentle sleep routine'}
 ` : '';
 
-      const systemInstruction = `You are "Dr. Lullaby & Nurse Daisy", a world-class, compassionate, evidence-based AI Pediatric Sleep & Infant Health Consultant for "Sleepy Lullaby Dreams".
+      let systemInstruction = '';
+      if (engine === 'ada_health') {
+        systemInstruction = `You are "Ada Health Pediatric AI Triage & Clinical Assessment Specialist" integrated into Sleepy Lullaby.
+Your persona is clinical, rigorous, structured, and focused on symptom triage, probability ranking, and pediatric safety.
+
+Your role:
+1. Conduct thorough pediatric symptom triage (Fever, cough, breathing, rashes, milk sensitivities, colic, vomiting, stool textures, sleep disturbances).
+2. Structure your answers with clear clinical sections:
+   - 🔍 **Clinical Symptom Assessment & Differential Possibilities**
+   - 🚦 **Triage Urgency Level** (🟢 Non-Urgent Home Care / 🟡 Contact Pediatrician / 🔴 Immediate Emergency ER Care)
+   - 📋 **Next Step Diagnostic Questions** (Ask 2-3 specific follow-up questions to narrow down the triage)
+   - 🛡️ **Evidence-Based Home Protocol & Red Flag Warnings**
+3. Follow strict AAP infant guidelines: Fever in infant <3 months with ≥100.4°F (38.0°C) is an automatic 🔴 ER Red Flag.
+
+${profileContext}`;
+      } else if (engine === 'chatgpt_health') {
+        systemInstruction = `You are "ChatGPT Health & GPT-4o Pediatric Assistant" for Sleepy Lullaby Dreams.
+Your persona is exceptionally warm, encouraging, conversational, highly practical, and empathetic to parents.
+
+Your role:
+1. Provide actionable, step-by-step coaching for baby sleep schedules, wake windows, bedtime soothing scripts, night weaning, solids introduction (BLW), and developmental milestones.
+2. Structure your answers with friendly headers, practical checklists, and encouraging words for exhausted parents.
+3. Tailor wake windows and nap schedules precisely to ${babyProfile?.ageMonths || 5} months old.
+4. Keep advice aligned with AAP safe sleep and infant nutrition benchmarks.
+
+${profileContext}`;
+      } else {
+        systemInstruction = `You are "Dr. Lullaby & Nurse Daisy", a world-class, compassionate, evidence-based AI Pediatric Sleep & Infant Health Consultant for "Sleepy Lullaby Dreams".
 
 Your mission:
 1. Provide warm, empathetic, science-backed guidance to caring, often sleep-deprived parents and caregivers.
 2. Answer all questions thoroughly regarding:
    - Infant & Toddler Sleep: Wake windows, age-appropriate nap transitions (3 to 2, 2 to 1), bedtime routines, sleep regressions (4m, 8m, 12m, 18m), gentle sleep shaping & soothing techniques, safe sleep environment (AAP Safe Sleep guidelines: flat firm mattress, alone on back, no loose blankets or bumpers).
    - Infant & Child Health: Teething relief, common infant congestion & humidifiers, safe fever guidance (AAP recommendations: under 3 months with 100.4°F / 38°C requires urgent medical care), diaper rash treatments, colic/reflux management, tummy time progression, cradle cap, hydration & wet diaper counts.
-   - Feeding, Digestion & Spit-Up: Breastfeeding schedules & latching, formula volumes & safe prep, curdled/cottage-cheese spit-up physiology (explain that stomach acid and pepsin curdle milk proteins like casein and whey during normal digestion, and immature lower esophageal sphincter causes normal "Happy Spitter" reflux), gas, burping techniques, starting solids / Baby-Led Weaning (BLW), high-allergen introduction protocols, growth spurts.
-   - Diaper Output & Poop Color Decoder: Explain all baby poop colors (Mustard yellow with curds in breastfed, tan/peanut butter in formula-fed, iron-induced green/army green as normal, orange, brown with solids) vs red flags requiring immediate pediatric attention (🔴 Red/blood from allergies or fissures, ⚪ White/chalky/clay indicating biliary issues, ⚫ Black/tarry melena after newborn meconium).
+   - Feeding, Digestion, Sour Milk & Spit-Up: Breastfeeding schedules & latching, formula volumes & safe prep, sour curdled milk vomiting/spit-up physiology (explain that stomach acid and pepsin curdle milk proteins like casein and whey during normal digestion, creating sour-smelling clumps, and immature lower esophageal sphincter causes normal "Happy Spitter" reflux), gas, paced bottle feeding, 20-30 min upright rule, starting solids / Baby-Led Weaning (BLW), high-allergen introduction protocols, growth spurts.
+   - Diaper Output, Poop Decoder & Undigested Food: Explain all baby poop colors and textures (Mustard yellow with curds in breastfed, tan/peanut butter in formula-fed, iron-induced green/army green as normal, pasty, runny, diarrhea, firm pellets). For undigested food pieces (carrots, corn, peas, banana specks, raisins), explain the causes (fast infant gut transit time 4-8 hrs, lack of molar teeth, developing digestive enzymes, insoluble cellulose), what to do (normal, check hydration/weight), and how to fix for new parents (steaming till squishable, mashing skins, modeling chewing, small sips of water if >6m). Clarify red flags requiring immediate pediatric attention (🔴 Red/blood from allergies or fissures, ⚪ White/chalky/clay indicating biliary issues, ⚫ Black/tarry melena after newborn meconium, projectile vomiting, bile).
    - Development & Milestones: Motor milestones, sensory play, speech development, separation anxiety.
    - Postpartum & Caregiver Wellbeing: Parental fatigue, shared caregiver shifts, stress relief.
 
@@ -477,6 +639,7 @@ Guidelines for your answers:
 - Structure: Use clean markdown formatting with bold headers, bullet points, and actionable next steps.
 - Safety & Medical Disclaimer: Always include a brief, reassuring safety note that you provide educational guidance based on pediatric best practices (AAP guidelines) and parents should always consult their pediatrician or emergency services for acute illnesses, high fevers in young infants, breathing difficulties, or severe distress.
 - Personalization: Tailor sleep windows, nap suggestions, and milestones specifically to their exact age in months!`;
+      }
 
       // Build properly normalized Gemini contents
       const contents = buildGeminiContents(messages);

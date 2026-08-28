@@ -25,16 +25,34 @@ import {
   Apple,
   TrendingUp,
   Moon,
-  AlertCircle
+  AlertCircle,
+  FileText,
+  Zap,
+  Maximize2,
+  Minimize2,
+  Type,
+  CheckSquare,
+  Square,
+  ZoomIn,
+  ZoomOut,
+  Clock,
+  Printer
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { BabyProfile } from '../types';
+import { BabyProfile, SleepLog, FeedLog, DiaperLog, CustomActivityLog } from '../types';
 import { PoopVisualGuideCard } from './PoopVisualGuideCard';
 import { LactoseIntoleranceCard } from './LactoseIntoleranceCard';
+import { UndigestedFoodAndSourMilkCard } from './UndigestedFoodAndSourMilkCard';
+import { generatePediatricPdf } from '../utils/generatePediatricPdf';
 
 interface OnSiteAIBabyDoctorSectionProps {
   babyProfile: BabyProfile;
   onOpenFullModal: () => void;
+  sleepLogs?: SleepLog[];
+  feedLogs?: FeedLog[];
+  diaperLogs?: DiaperLog[];
+  activityLogs?: CustomActivityLog[];
+  onDownloadPdf?: () => void;
 }
 
 interface ChatMessage {
@@ -46,17 +64,36 @@ interface ChatMessage {
 
 export const OnSiteAIBabyDoctorSection: React.FC<OnSiteAIBabyDoctorSectionProps> = ({
   babyProfile,
-  onOpenFullModal
+  onOpenFullModal,
+  sleepLogs = [],
+  feedLogs = [],
+  diaperLogs = [],
+  activityLogs = [],
+  onDownloadPdf
 }) => {
+  // Engine Mode: 'dr_lullaby' | 'ada_health' | 'chatgpt_health'
+  const [selectedEngine, setSelectedEngine] = useState<'dr_lullaby' | 'ada_health' | 'chatgpt_health'>('dr_lullaby');
+
+  // Reader Canvas Size: 'split' | 'expanded'
+  const [isExpandedCanvas, setIsExpandedCanvas] = useState<boolean>(false);
+  // Font Size: 'normal' (16px) | 'large' (18px) | 'xlarge' (21px)
+  const [fontSize, setFontSize] = useState<'normal' | 'large' | 'xlarge'>('large');
+  // Interactive Action Items check state
+  const [checkedActions, setCheckedActions] = useState<Record<string, boolean>>({});
+
+  const toggleActionItem = (id: string) => {
+    setCheckedActions(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
   // Chat state
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'doc-welcome',
       role: 'assistant',
-      content: `### 🩺 Welcome to your On-Site AI Pediatric Clinic
-I'm **Dr. Lullaby & Nurse Daisy**, your 24/7 AI Pediatric Consultant for ${babyProfile.name || 'your baby'} (${babyProfile.ageMonths} months old).
+      content: `### 🩺 Welcome to your 24/7 AI Pediatric Clinic
+I'm **Dr. Lullaby & Nurse Daisy**, with integrated **Ada Health Pediatric Triage** and **ChatGPT Health Assistant** for ${babyProfile.name || 'your baby'} (${babyProfile.ageMonths} months old).
 
-**Ask me anything regarding:**
+**Select an AI Engine above or ask anything regarding:**
 - **Fever & Illness**: Safe temperature thresholds, when to call the pediatrician, cold/cough comfort.
 - **Sleep Regressions**: 4-month maturation, 8-month separation anxiety, nap transitions.
 - **Starting Solids & Allergens**: Baby-Led Weaning, Top 9 allergen introduction ladder, reaction signs.
@@ -162,7 +199,8 @@ I'm **Dr. Lullaby & Nurse Daisy**, your 24/7 AI Pediatric Consultant for ${babyP
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: payloadMessages,
-          babyProfile: babyProfile
+          babyProfile: babyProfile,
+          engine: selectedEngine
         })
       });
 
@@ -318,8 +356,9 @@ Please feel free to re-submit your message in a moment!`,
         {/* Main 2-Column Interactive Doctor Console */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* Left Column: Interactive Pediatric Diagnostic Tools & Triagers */}
-          <div className="lg:col-span-5 space-y-6">
+          {/* Left Column: Interactive Pediatric Diagnostic Tools & Triagers (Hidden when Canvas Expanded) */}
+          {!isExpandedCanvas && (
+            <div className="lg:col-span-5 space-y-6">
             
             {/* Diagnostic Tool Selector Pills */}
             <div className="bg-white p-3 rounded-3xl border-2 border-[#E7DDD5] shadow-xs flex items-center gap-1.5 overflow-x-auto scrollbar-none">
@@ -385,7 +424,7 @@ Please feel free to re-submit your message in a moment!`,
                 }`}
               >
                 <Milk className="w-3.5 h-3.5" />
-                <span>🍼 Spit-Up Guide</span>
+                <span>🍼 Sour Milk & Undigested Food</span>
               </button>
 
               <button
@@ -712,68 +751,13 @@ Please feel free to re-submit your message in a moment!`,
               </div>
             )}
 
-            {/* TOOL 5: Curdled Spit-Up Guide */}
+            {/* TOOL 5: Sour Milk Vomit & Undigested Food Guide */}
             {activeTool === 'spit_up' && (
-              <div className="bg-white rounded-[32px] border-2 border-[#E7DDD5] p-6 sm:p-7 shadow-sm space-y-5 animate-fadeIn">
-                <div className="flex items-center justify-between pb-3 border-b border-[#F0E6DD]">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-xl bg-[#FFEDD5] border border-[#FED7AA] flex items-center justify-center text-[#EA580C]">
-                      <Milk className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-serif text-lg font-bold text-[#1C1917]">
-                        Curdled Formula & Spit-Up Guide
-                      </h3>
-                      <p className="text-xs text-[#57534E]">Why spit-up looks like cottage cheese & what to do</p>
-                    </div>
-                  </div>
-                  <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-[#DCFCE7] text-[#166534] border border-[#BBF7D0]">
-                    95% Normal
-                  </span>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-2">
-                  <span className="text-xs font-extrabold uppercase text-[#EA580C] block">
-                    🔬 Why It Looks Like Curdled Cottage Cheese:
-                  </span>
-                  <p className="text-xs text-[#44403C] leading-relaxed">
-                    When baby drinks formula or milk, it mixes with <strong>hydrochloric acid & pepsin</strong> in the stomach. This naturally <strong>curdles milk proteins (casein & whey)</strong> into white clumps—the normal first stage of healthy digestion!
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-[#FFFBF7] border-2 border-[#E7DDD5] space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#1C1917]">Time Elapsed Since Bottle:</span>
-                    <span className="font-serif text-sm font-bold text-[#EA580C] px-2 py-0.5 rounded-lg bg-orange-100 border border-orange-200">
-                      {spitUpMinutes} Minutes
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min="5"
-                    max="120"
-                    step="5"
-                    value={spitUpMinutes}
-                    onChange={(e) => setSpitUpMinutes(parseInt(e.target.value, 10))}
-                    className="w-full accent-[#EA580C] cursor-pointer"
-                  />
-                  <p className="text-xs text-[#57534E]">
-                    {spitUpMinutes <= 20 
-                      ? "• 5-20 mins: Fresh liquid milk mixed with saliva."
-                      : spitUpMinutes <= 60
-                      ? "• 20-60 mins: Thick white curd clumps (fully acidified & digested in stomach)."
-                      : "• 60+ mins: Clear watery liquid with separated white specks (stomach acid emptying)."}
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => handleSendMessage('My baby is spitting up curdled formula like cottage cheese 30 minutes after feeds. Is this normal reflux or a milk allergy?')}
-                  className="w-full py-3 rounded-2xl bg-[#EA580C] hover:bg-[#C2410C] text-white font-bold text-xs shadow-md shadow-[#EA580C]/30 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <Sparkles className="w-4 h-4 text-orange-200" />
-                  <span>Ask AI Doctor About Spit-Up</span>
-                </button>
-              </div>
+              <UndigestedFoodAndSourMilkCard
+                babyName={babyProfile.name || 'your baby'}
+                babyAgeMonths={babyProfile.ageMonths || 5}
+                onAskDoctor={(prompt) => handleSendMessage(prompt)}
+              />
             )}
 
             {/* TOOL 6: Poop Color Decoder */}
@@ -896,186 +880,495 @@ Please feel free to re-submit your message in a moment!`,
             </div>
 
           </div>
+          )}
 
-          {/* Right Column: In-Page Live AI Doctor Consultation Chat Console */}
-          <div className="lg:col-span-7">
-            <div className="bg-white rounded-[36px] border-2 border-[#E7DDD5] shadow-lg flex flex-col h-[650px] overflow-hidden">
+          {/* Right Column: In-Page Live AI Doctor Consultation Chat Console (Expandable to Full Width) */}
+          <div className={isExpandedCanvas ? 'lg:col-span-12' : 'lg:col-span-7'}>
+            <div className={`bg-white rounded-[36px] border-2 border-[#E7DDD5] shadow-xl flex flex-col overflow-hidden transition-all duration-300 ${
+              isExpandedCanvas ? 'h-[850px]' : 'h-[680px]'
+            }`}>
               
               {/* Console Header */}
-              <div className="p-4 sm:px-6 bg-[#FFFBF7] border-b border-[#F0E6DD] flex items-center justify-between gap-4 shrink-0">
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <div className="w-11 h-11 rounded-2xl bg-[#FFE4E6] border-2 border-[#FECDD3] flex items-center justify-center text-[#FF5A5F] shadow-xs">
-                      <Stethoscope className="w-6 h-6" />
+              <div className="p-4 sm:px-6 bg-[#FFFBF7] border-b border-[#F0E6DD] space-y-3 shrink-0">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <div className="w-11 h-11 rounded-2xl bg-[#FFE4E6] border-2 border-[#FECDD3] flex items-center justify-center text-[#FF5A5F] shadow-xs">
+                        <Stethoscope className="w-6 h-6" />
+                      </div>
+                      <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-[#22C55E] border-2 border-white rounded-full" />
                     </div>
-                    <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-[#22C55E] border-2 border-white rounded-full" />
+
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-serif text-lg sm:text-xl font-bold text-[#1C1917]">
+                          24/7 AI Pediatric Clinic
+                        </h3>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#EDE9FE] text-[#5B21B6] border border-[#DDD6FE]">
+                          Multi-Model AI
+                        </span>
+                        {isExpandedCanvas && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#DCFCE7] text-[#166534] border border-[#BBF7D0]">
+                            Spacious Canvas Mode
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-[#57534E] font-medium">
+                        Patient: {babyProfile.name || 'Baby'} ({babyProfile.ageMonths}m) • AAP Evidence-Based
+                      </p>
+                    </div>
                   </div>
 
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-serif text-lg font-bold text-[#1C1917]">
-                        Live AI Pediatrician Console
-                      </h3>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#EDE9FE] text-[#5B21B6] border border-[#DDD6FE]">
-                        Gemini 3.7
-                      </span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {/* Expand Canvas Button */}
+                    <button
+                      onClick={() => setIsExpandedCanvas(!isExpandedCanvas)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                        isExpandedCanvas
+                          ? 'bg-[#1C1917] text-white border-[#1C1917] shadow-xs'
+                          : 'bg-white text-[#1C1917] border-[#D6C7BC] hover:bg-[#F5EFEB]'
+                      }`}
+                      title={isExpandedCanvas ? "Switch to Split View" : "Expand Answer Canvas to Full Screen Width"}
+                    >
+                      {isExpandedCanvas ? (
+                        <>
+                          <Minimize2 className="w-3.5 h-3.5" />
+                          <span>Split View</span>
+                        </>
+                      ) : (
+                        <>
+                          <Maximize2 className="w-3.5 h-3.5" />
+                          <span>Expand Canvas</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* Font Size Zoom Controller */}
+                    <div className="hidden sm:flex items-center bg-white rounded-xl border border-[#D6C7BC] p-0.5 text-xs font-bold">
+                      <button
+                        onClick={() => setFontSize('normal')}
+                        className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                          fontSize === 'normal' ? 'bg-[#FF5A5F] text-white' : 'text-[#57534E] hover:text-[#1C1917]'
+                        }`}
+                        title="Normal Text Size"
+                      >
+                        A
+                      </button>
+                      <button
+                        onClick={() => setFontSize('large')}
+                        className={`px-2.5 py-1 rounded-lg text-sm transition-all cursor-pointer ${
+                          fontSize === 'large' ? 'bg-[#FF5A5F] text-white' : 'text-[#57534E] hover:text-[#1C1917]'
+                        }`}
+                        title="Large Text Size"
+                      >
+                        A+
+                      </button>
+                      <button
+                        onClick={() => setFontSize('xlarge')}
+                        className={`px-2.5 py-1 rounded-lg text-base transition-all cursor-pointer ${
+                          fontSize === 'xlarge' ? 'bg-[#FF5A5F] text-white' : 'text-[#57534E] hover:text-[#1C1917]'
+                        }`}
+                        title="Extra Large Text Size"
+                      >
+                        A++
+                      </button>
                     </div>
-                    <p className="text-xs text-[#57534E] font-medium">
-                      Tailored to {babyProfile.name || 'Baby'} ({babyProfile.ageMonths}m) • AAP Evidence-Based
-                    </p>
+
+                    <button
+                      onClick={() => {
+                        if (onDownloadPdf) {
+                          onDownloadPdf();
+                        } else {
+                          generatePediatricPdf({
+                            babyProfile,
+                            sleepLogs,
+                            feedLogs,
+                            diaperLogs,
+                            activityLogs
+                          });
+                        }
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-[#059669] hover:bg-[#047857] text-white text-xs font-bold shadow-xs active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
+                      title="Download 24h & 7-Day Pediatric Summary PDF for Doctor"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Export PDF</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMessages([
+                          {
+                            id: 'welcome-reset',
+                            role: 'assistant',
+                            content: `### 🩺 Consultation Reset
+Switched to **${selectedEngine === 'ada_health' ? 'Ada Health Pediatric Triage' : selectedEngine === 'chatgpt_health' ? 'ChatGPT Health Assistant' : 'Dr. Lullaby Clinical MD'}**. Ready for your questions regarding sleep, infant health, fevers, solids, allergens, and baby milestones. How can I assist?`,
+                            timestamp: 'Now'
+                          }
+                        ]);
+                      }}
+                      className="p-2 rounded-xl text-[#57534E] hover:text-[#1C1917] hover:bg-[#F0E6DD] transition-colors cursor-pointer"
+                      title="Reset chat"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={onOpenFullModal}
+                      className="px-3 py-1.5 rounded-xl bg-white border border-[#D6C7BC] text-xs font-bold text-[#1C1917] hover:bg-[#F5EFEB] transition-colors cursor-pointer hidden sm:block"
+                    >
+                      Fullscreen
+                    </button>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                {/* 3 Clinical Intelligence Engine Selectors */}
+                <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#F5EFEB] rounded-2xl border border-[#E7DDD5]">
                   <button
                     onClick={() => {
-                      setMessages([
+                      setSelectedEngine('dr_lullaby');
+                      setMessages(prev => [
+                        ...prev,
                         {
-                          id: 'welcome-reset',
+                          id: `mode-${Date.now()}`,
                           role: 'assistant',
-                          content: `### 🩺 Consultation Reset
-Ready for your questions regarding sleep, infant health, fevers, solids, allergens, and baby milestones. How can I assist?`,
+                          content: `### 🏥 Switched to Dr. Lullaby & Nurse Daisy (AAP Guidelines)
+Providing evidence-based pediatric clinical guidelines, fever safety, milk protein physiology, and safe sleep standards.`,
                           timestamp: 'Now'
                         }
                       ]);
                     }}
-                    className="p-2 rounded-xl text-[#57534E] hover:text-[#1C1917] hover:bg-[#F0E6DD] transition-colors cursor-pointer"
-                    title="Reset chat"
+                    className={`py-1.5 px-2 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                      selectedEngine === 'dr_lullaby'
+                        ? 'bg-[#FF5A5F] text-white shadow-xs'
+                        : 'text-[#57534E] hover:text-[#1C1917] hover:bg-white/60'
+                    }`}
                   >
-                    <RotateCcw className="w-4 h-4" />
+                    <Stethoscope className="w-3.5 h-3.5" />
+                    <span className="truncate">Dr. Lullaby</span>
                   </button>
+
                   <button
-                    onClick={onOpenFullModal}
-                    className="px-3 py-1.5 rounded-xl bg-white border border-[#D6C7BC] text-xs font-bold text-[#1C1917] hover:bg-[#F5EFEB] transition-colors cursor-pointer hidden sm:block"
+                    onClick={() => {
+                      setSelectedEngine('ada_health');
+                      setMessages(prev => [
+                        ...prev,
+                        {
+                          id: `mode-${Date.now()}`,
+                          role: 'assistant',
+                          content: `### 🔍 Switched to Ada Health Pediatric Triage Engine
+Specializing in systematic symptom triage, differential probability analysis, and pediatric red-flag identification.`,
+                          timestamp: 'Now'
+                        }
+                      ]);
+                    }}
+                    className={`py-1.5 px-2 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                      selectedEngine === 'ada_health'
+                        ? 'bg-[#0284C7] text-white shadow-xs'
+                        : 'text-[#57534E] hover:text-[#1C1917] hover:bg-white/60'
+                    }`}
                   >
-                    Expand Fullscreen
+                    <Activity className="w-3.5 h-3.5" />
+                    <span className="truncate">Ada Health</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setSelectedEngine('chatgpt_health');
+                      setMessages(prev => [
+                        ...prev,
+                        {
+                          id: `mode-${Date.now()}`,
+                          role: 'assistant',
+                          content: `### ⚡ Switched to ChatGPT Health Assistant
+Specializing in empathetic parenting routines, gentle sleep soothing scripts, feeding schedules, and milestone coaching.`,
+                          timestamp: 'Now'
+                        }
+                      ]);
+                    }}
+                    className={`py-1.5 px-2 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                      selectedEngine === 'chatgpt_health'
+                        ? 'bg-[#10A37F] text-white shadow-xs'
+                        : 'text-[#57534E] hover:text-[#1C1917] hover:bg-white/60'
+                    }`}
+                  >
+                    <Zap className="w-3.5 h-3.5" />
+                    <span className="truncate">ChatGPT Health</span>
                   </button>
                 </div>
               </div>
 
-              {/* Messages Area */}
+              {/* Messages Area - Larger, High-Contrast Visual Answer Stream */}
               <div 
                 ref={chatContainerRef}
-                className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-[#FFFBF7]/40"
+                className="flex-1 p-4 sm:p-7 overflow-y-auto space-y-6 bg-[#FFFBF7]/40"
               >
                 {messages.map((msg) => {
                   const isUser = msg.role === 'user';
                   return (
                     <div
                       key={msg.id}
-                      className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}
+                      className={`flex gap-3 sm:gap-4 ${isUser ? 'justify-end' : 'justify-start'}`}
                     >
                       {!isUser && (
-                        <div className="w-8 h-8 rounded-xl bg-[#FFE4E6] border border-[#FECDD3] flex items-center justify-center text-[#FF5A5F] shrink-0 mt-1">
-                          <Bot className="w-4 h-4" />
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#FFE4E6] border-2 border-[#FECDD3] flex items-center justify-center text-[#FF5A5F] shrink-0 mt-1 shadow-xs">
+                          <Bot className="w-5 h-5 sm:w-6 sm:h-6" />
                         </div>
                       )}
 
                       <div
-                        className={`max-w-[85%] rounded-2xl p-4 shadow-xs relative group ${
+                        className={`rounded-3xl p-5 sm:p-7 shadow-md relative group transition-all ${
                           isUser
-                            ? 'bg-[#FF5A5F] text-white rounded-br-none'
-                            : 'bg-white border-2 border-[#E7DDD5] text-[#1C1917] rounded-bl-none'
+                            ? 'bg-[#FF5A5F] text-white rounded-br-none max-w-[85%] sm:max-w-[75%]'
+                            : isExpandedCanvas
+                            ? 'bg-white border-2 border-[#E7DDD5] text-[#1C1917] rounded-bl-none max-w-[96%] w-full'
+                            : 'bg-white border-2 border-[#E7DDD5] text-[#1C1917] rounded-bl-none max-w-[92%] sm:max-w-[88%]'
                         }`}
                       >
+                        {/* If assistant, display visual clinical badge header */}
+                        {!isUser && (
+                          <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-[#F0E6DD] text-xs">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="px-2.5 py-0.5 rounded-full font-extrabold bg-[#DCFCE7] text-[#166534] border border-[#BBF7D0] flex items-center gap-1">
+                                <ShieldCheck className="w-3.5 h-3.5" />
+                                <span>AAP Clinical Verified</span>
+                              </span>
+                              <span className="px-2.5 py-0.5 rounded-full font-bold bg-[#F5EFEB] text-[#57534E]">
+                                👶 Patient: {babyProfile.name || 'Baby'} ({babyProfile.ageMonths}m)
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-[#78716C] font-mono text-[11px]">
+                              <Clock className="w-3 h-3" />
+                              <span>{msg.timestamp}</span>
+                            </div>
+                          </div>
+                        )}
+
                         {isUser ? (
-                          <p className="text-base font-semibold whitespace-pre-wrap leading-relaxed">
+                          <p className={`font-semibold whitespace-pre-wrap ${
+                            fontSize === 'xlarge' ? 'text-xl leading-relaxed' : fontSize === 'large' ? 'text-lg leading-relaxed' : 'text-base leading-relaxed'
+                          }`}>
                             {msg.content}
                           </p>
                         ) : (
-                          <div className="text-base leading-relaxed text-[#1C1917] space-y-3 prose prose-stone max-w-none">
+                          <div className={`space-y-4 max-w-none ${
+                            fontSize === 'xlarge'
+                              ? 'text-xl leading-loose'
+                              : fontSize === 'large'
+                              ? 'text-lg leading-relaxed'
+                              : 'text-base leading-relaxed'
+                          } text-[#1C1917]`}>
                             <ReactMarkdown
                               components={{
                                 h3: ({ children }) => (
-                                  <h3 className="font-serif text-lg font-bold text-[#1C1917] mt-3 mb-2 pb-1 border-b border-[#E7DDD5]">
-                                    {children}
-                                  </h3>
+                                  <div className="p-3.5 sm:p-4 my-4 bg-[#FFF7ED] border-l-4 border-[#EA580C] rounded-r-2xl shadow-2xs">
+                                    <h3 className="font-serif text-lg sm:text-2xl font-bold text-[#9A3412] flex items-center gap-2 m-0">
+                                      <span>🩺</span>
+                                      <span>{children}</span>
+                                    </h3>
+                                  </div>
                                 ),
                                 h4: ({ children }) => (
-                                  <h4 className="font-bold text-base text-[#1C1917] mt-3 mb-1.5 flex items-center gap-1.5">
-                                    {children}
+                                  <h4 className="font-bold text-base sm:text-lg text-[#1C1917] mt-4 mb-2 flex items-center gap-2 pb-1 border-b border-[#F0E6DD]">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-[#FF5A5F]" />
+                                    <span>{children}</span>
                                   </h4>
                                 ),
                                 p: ({ children }) => (
-                                  <p className="text-base text-[#1C1917] leading-relaxed mb-2.5 last:mb-0">
+                                  <p className="text-[#1C1917] font-normal leading-relaxed mb-3 last:mb-0">
                                     {children}
                                   </p>
                                 ),
                                 ul: ({ children }) => (
-                                  <ul className="list-disc pl-6 space-y-2 my-2.5 text-base text-[#1C1917]">
+                                  <ul className="space-y-2.5 my-3 pl-2 sm:pl-4">
                                     {children}
                                   </ul>
                                 ),
                                 ol: ({ children }) => (
-                                  <ol className="list-decimal pl-6 space-y-2 my-2.5 text-base text-[#1C1917]">
+                                  <ol className="space-y-2.5 my-3 pl-2 sm:pl-4 list-decimal text-[#1C1917]">
                                     {children}
                                   </ol>
                                 ),
                                 li: ({ children }) => (
-                                  <li className="text-base text-[#1C1917] leading-relaxed">
-                                    {children}
+                                  <li className="p-3 rounded-2xl bg-[#FFFBF7] border border-[#E7DDD5] shadow-2xs text-[#1C1917] font-medium flex items-start gap-2.5 leading-relaxed">
+                                    <span className="text-[#059669] font-bold mt-0.5 shrink-0">✓</span>
+                                    <div className="flex-1">{children}</div>
                                   </li>
                                 ),
                                 strong: ({ children }) => (
-                                  <strong className="font-bold text-[#1C1917]">
+                                  <strong className="font-bold text-[#1C1917] bg-[#FEF3C7]/40 px-1 py-0.5 rounded">
                                     {children}
                                   </strong>
                                 ),
                                 blockquote: ({ children }) => (
-                                  <blockquote className="border-l-4 border-[#FF5A5F] pl-4 py-2.5 my-3 bg-[#FFF1F2] rounded-r-2xl text-base font-semibold text-[#9F1239] leading-relaxed">
-                                    {children}
-                                  </blockquote>
+                                  <div className="my-4 p-4 sm:p-5 rounded-2xl bg-[#FFF1F2] border-2 border-[#FECDD3] text-[#9F1239] shadow-xs space-y-1">
+                                    <div className="flex items-center gap-2 font-extrabold text-xs uppercase tracking-wider text-[#BE123C]">
+                                      <ShieldAlert className="w-4 h-4" />
+                                      <span>Pediatric Urgent Red Flags / Important Warning</span>
+                                    </div>
+                                    <div className="text-base sm:text-lg font-semibold leading-relaxed">
+                                      {children}
+                                    </div>
+                                  </div>
                                 )
                               }}
                             >
                               {msg.content}
                             </ReactMarkdown>
+
+                            {/* Interactive Care Checklist & Action Bar */}
+                            <div className="mt-5 pt-4 border-t-2 border-[#F0E6DD] space-y-3">
+                              <div className="flex items-center justify-between text-xs font-bold text-[#57534E]">
+                                <span className="uppercase tracking-wider flex items-center gap-1.5">
+                                  <CheckSquare className="w-3.5 h-3.5 text-[#059669]" />
+                                  <span>Parent Care Steps Checklist:</span>
+                                </span>
+                                <span className="text-[11px] text-[#78716C]">Tap to mark steps completed</span>
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                {[
+                                  { id: `${msg.id}-step1`, label: 'Checked temperature & recorded reading' },
+                                  { id: `${msg.id}-step2`, label: 'Offered hydration (breast milk/formula/water)' },
+                                  { id: `${msg.id}-step3`, label: 'Observed diapers and stool consistency' },
+                                  { id: `${msg.id}-step4`, label: 'Applied soothing & comfortable rest routine' }
+                                ].map((step) => {
+                                  const isDone = !!checkedActions[step.id];
+                                  return (
+                                    <button
+                                      key={step.id}
+                                      type="button"
+                                      onClick={() => toggleActionItem(step.id)}
+                                      className={`p-2.5 rounded-xl border text-left flex items-center gap-2 transition-all cursor-pointer ${
+                                        isDone
+                                          ? 'bg-[#DCFCE7] border-[#86EFAC] text-[#166534] font-bold'
+                                          : 'bg-[#FFFBF7] border-[#E7DDD5] text-[#57534E] hover:bg-[#F5EFEB]'
+                                      }`}
+                                    >
+                                      <div className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 ${
+                                        isDone ? 'bg-[#15803D] border-[#15803D] text-white' : 'border-[#D6C7BC] bg-white'
+                                      }`}>
+                                        {isDone && <Check className="w-3 h-3" />}
+                                      </div>
+                                      <span className="text-[11px] truncate">{step.label}</span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+
+                              {/* Action Tools: Copy, Print, Share */}
+                              <div className="flex items-center justify-between gap-3 pt-2 text-xs text-[#57534E]">
+                                <span className="text-[11px] text-[#78716C] font-mono">
+                                  Reference ID: #{msg.id.slice(-6)}
+                                </span>
+
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={() => handleCopy(msg.content, msg.id)}
+                                    className="px-3 py-1.5 rounded-xl bg-[#FFFBF7] hover:bg-[#F0E6DD] border border-[#E7DDD5] text-[#1C1917] font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                                  >
+                                    {copiedId === msg.id ? (
+                                      <>
+                                        <Check className="w-3.5 h-3.5 text-green-600" />
+                                        <span className="text-green-600">Copied Plan</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Copy className="w-3.5 h-3.5" />
+                                        <span>Copy Plan</span>
+                                      </>
+                                    )}
+                                  </button>
+
+                                  <button
+                                    onClick={() => {
+                                      if (onDownloadPdf) onDownloadPdf();
+                                      else generatePediatricPdf({ babyProfile, sleepLogs, feedLogs, diaperLogs, activityLogs });
+                                    }}
+                                    className="px-3 py-1.5 rounded-xl bg-[#059669] hover:bg-[#047857] text-white font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                                  >
+                                    <FileText className="w-3.5 h-3.5" />
+                                    <span>Print / PDF</span>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+
                           </div>
                         )}
 
-                        <div className="flex items-center justify-between gap-4 mt-2 pt-1 border-t border-black/5 text-[10px] opacity-70">
-                          <span>{msg.timestamp}</span>
-                          {!isUser && (
-                            <button
-                              onClick={() => handleCopy(msg.content, msg.id)}
-                              className="hover:opacity-100 flex items-center gap-1 cursor-pointer"
-                            >
-                              {copiedId === msg.id ? (
-                                <>
-                                  <Check className="w-3 h-3 text-green-600" />
-                                  <span className="text-green-600">Copied</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Copy className="w-3 h-3" />
-                                  <span>Copy</span>
-                                </>
-                              )}
-                            </button>
-                          )}
-                        </div>
+                        {isUser && (
+                          <div className="flex items-center justify-end gap-2 mt-2 pt-1 border-t border-white/20 text-[11px] opacity-90 font-mono">
+                            <span>{msg.timestamp}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
                 })}
 
                 {isLoading && (
-                  <div className="flex gap-3 justify-start items-center">
-                    <div className="w-8 h-8 rounded-xl bg-[#FFE4E6] border border-[#FECDD3] flex items-center justify-center text-[#FF5A5F] shrink-0 animate-pulse">
-                      <Stethoscope className="w-4 h-4" />
+                  <div className="flex gap-4 justify-start items-center p-4 bg-white rounded-3xl border-2 border-[#E7DDD5] shadow-sm animate-pulse">
+                    <div className="w-10 h-10 rounded-2xl bg-[#FFE4E6] border border-[#FECDD3] flex items-center justify-center text-[#FF5A5F] shrink-0">
+                      <Stethoscope className="w-5 h-5 animate-spin" />
                     </div>
-                    <div className="bg-white border border-[#E7DDD5] rounded-2xl p-4 shadow-xs flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-[#FF5A5F] animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <div className="w-2 h-2 rounded-full bg-[#FF5A5F] animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <div className="w-2 h-2 rounded-full bg-[#FF5A5F] animate-bounce" style={{ animationDelay: '300ms' }} />
-                      <span className="text-xs text-[#57534E] ml-2 font-medium">Consulting AAP pediatric guidelines...</span>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#FF5A5F] animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#FF5A5F] animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#FF5A5F] animate-bounce" style={{ animationDelay: '300ms' }} />
+                        <span className="text-sm text-[#1C1917] font-bold ml-1">Consulting Pediatric AI & CDC Guidelines...</span>
+                      </div>
+                      <p className="text-xs text-[#57534E]">
+                        Formulating patient assessment for {babyProfile.name || 'your baby'} ({babyProfile.ageMonths} months old)...
+                      </p>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Chat Input */}
-              <div className="p-4 bg-white border-t border-[#F0E6DD]">
+              {/* Chat Input & Suggested Questions */}
+              <div className="p-4 bg-white border-t border-[#F0E6DD] space-y-3">
+                {/* Quick prompt chips */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
+                  <span className="text-[10px] font-bold uppercase text-[#78716C] shrink-0 mr-1">
+                    Quick Ask:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleSendMessage(`Why does my baby have undigested food in their poop (carrots, peas, corn), is it normal, and how do I fix food prep for them?`)}
+                    className="px-2.5 py-1 rounded-xl bg-[#FFF7ED] text-[#C2410C] border border-[#FED7AA] font-bold hover:bg-[#FFEDD5] whitespace-nowrap transition-all cursor-pointer flex items-center gap-1"
+                  >
+                    <span>🥕 Undigested food in poop</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSendMessage(`Why does my baby throw up / spit up sour-smelling curdled milk after bottles, and what should I do to fix it?`)}
+                    className="px-2.5 py-1 rounded-xl bg-[#FFF7ED] text-[#C2410C] border border-[#FED7AA] font-bold hover:bg-[#FFEDD5] whitespace-nowrap transition-all cursor-pointer flex items-center gap-1"
+                  >
+                    <span>🍼 Throws up sour milk</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSendMessage(`How do I tell the difference between lactose overload vs cow's milk protein allergy (CMPA)?`)}
+                    className="px-2.5 py-1 rounded-xl bg-[#F0FDF4] text-[#166534] border border-[#BBF7D0] font-bold hover:bg-[#DCFCE7] whitespace-nowrap transition-all cursor-pointer flex items-center gap-1"
+                  >
+                    <span>🥛 Lactose vs CMPA</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSendMessage(`What vaccines are due for my ${babyProfile.ageMonths}-month-old baby (${babyProfile.name}), and how should I treat post-shot fever and leg soreness?`)}
+                    className="px-2.5 py-1 rounded-xl bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0] font-bold hover:bg-[#D1FAE5] whitespace-nowrap transition-all cursor-pointer flex items-center gap-1"
+                  >
+                    <span>💉 Vaccine Schedule & Care</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSendMessage(`When is an infant fever considered a medical emergency under AAP guidelines?`)}
+                    className="px-2.5 py-1 rounded-xl bg-[#FFF1F2] text-[#BE123C] border border-[#FECDD3] font-bold hover:bg-[#FFE4E6] whitespace-nowrap transition-all cursor-pointer flex items-center gap-1"
+                  >
+                    <span>🌡️ Fever Red Flags</span>
+                  </button>
+                </div>
+
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();

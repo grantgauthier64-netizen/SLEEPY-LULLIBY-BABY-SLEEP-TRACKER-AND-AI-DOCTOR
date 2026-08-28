@@ -121,12 +121,17 @@ export const Footer: React.FC<FooterProps> = ({ onOpenStartTracking }) => {
               <div className="w-10 h-10 rounded-2xl bg-[#FF5A5F] flex items-center justify-center shadow-md shadow-[#FF5A5F]/30">
                 <Moon className="w-5 h-5 text-white fill-white" />
               </div>
-              <span className="font-serif text-2xl font-bold text-white">
-                Sleepy Lullaby AI
-              </span>
+              <div>
+                <span className="font-serif text-xl sm:text-2xl font-bold text-white block leading-tight">
+                  Baby AI Pediatrician <span className="text-[#FF5A5F]">&</span> Sleep Tracker
+                </span>
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#A8A29E]">
+                  For New Parents
+                </span>
+              </div>
             </div>
             <p className="text-xs text-[#A8A29E] leading-relaxed max-w-sm">
-              The premier <strong>AI Baby Sleep Tracker</strong>, <strong>AI Sleep Coach</strong>, and <strong>Newborn Baby Sleep and Feeding Tracker with AI</strong>. Evidence-based pediatric support for well-rested families.
+              The premier <strong>Baby AI Pediatrician and Sleep Tracker for New Parents</strong>. Evidence-based pediatric support, 24/7 AI pediatric doctor, and newborn sleep coaching for well-rested families.
             </p>
             <div className="flex items-center gap-2 text-xs text-[#4ADE80] font-semibold">
               <ShieldCheck className="w-4 h-4 text-[#4ADE80]" />
@@ -180,9 +185,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenStartTracking }) => {
 
         {/* Bottom Copyright */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#78716C]">
-          <p>© {new Date().getFullYear()} Sleepy Lullaby Dreams. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Baby AI Pediatrician & Sleep Tracker for New Parents. All rights reserved.</p>
           <div className="flex items-center gap-2">
-            <span>Wishing your family peaceful nights</span>
+            <span>Empowering parents with gentle, evidence-based care</span>
             <Heart className="w-3.5 h-3.5 text-[#FF5A5F] fill-current" />
           </div>
         </div>
